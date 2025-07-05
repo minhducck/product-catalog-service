@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
+  setupApiVersioning,
   setupObjectValidation,
   setupStaticAssets,
   setupSwagger,
@@ -11,6 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setupSwagger(app);
   setupObjectValidation(app);
+  setupApiVersioning(app);
   setupStaticAssets(app);
   await app.listen(process.env.PORT ?? 3000);
 }

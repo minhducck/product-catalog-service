@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { TimeoutInterceptor } from '@common/common/interceptor/timeout.interceptor';
 
@@ -24,6 +24,10 @@ import { TimeoutInterceptor } from '@common/common/interceptor/timeout.intercept
     }),
   ],
   providers: [
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: TimeoutInterceptor,

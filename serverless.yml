@@ -11,12 +11,32 @@ plugins:
   - serverless-offline
 
 functions:
-  main:
-    handler: dist/apps/entity/main.handler
+  categories:
+    handler: dist/apps/category/apps/category/src/serverless.handler
     events:
       - http:
           method: ANY
-          path: /
+          path: /V1/categories/
       - http:
           method: ANY
-          path: '{proxy+}'
+          path: '/V1/categories/{proxy+}'
+
+  products:
+    handler: dist/apps/product/apps/product/src/serverless.handler
+    events:
+      - http:
+          method: ANY
+          path: /V1/products/
+      - http:
+          method: ANY
+          path: '/V1/products/{proxy+}'
+
+  attributes:
+    handler: dist/apps/attribute/apps/attribute/src/serverless.handler
+    events:
+      - http:
+          method: ANY
+          path: /V1/attributes/
+      - http:
+          method: ANY
+          path: '/V1/attributes/{proxy+}'

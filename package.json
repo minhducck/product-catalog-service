@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config apps/backend/test/jest-e2e.json",
-    "start:serverless:dev": "nest build --all --webpack && serverless offline"
+    "start:serverless:dev": "nest build --all && serverless offline"
   },
   "dependencies": {
     "@codegenie/serverless-express": "^4.16.0",
