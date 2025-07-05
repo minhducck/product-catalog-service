@@ -5,9 +5,10 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 import { Exclude, instanceToPlain } from 'class-transformer';
 import { generateULID } from '@common/common/helper/generate-ulid';
+import { ApiResponseProperty } from '@nestjs/swagger/dist/decorators';
 
 export class BaseModel<T = any> {
   #originData: object;
@@ -21,6 +22,7 @@ export class BaseModel<T = any> {
     unsigned: true,
     primary: true,
   })
+  @ApiResponseProperty({ type: 'string' })
   uuid: bigint;
 
   @BeforeInsert()
@@ -29,11 +31,11 @@ export class BaseModel<T = any> {
   }
 
   @CreateDateColumn({ name: 'createdAt' })
-  @Exclude({ toPlainOnly: true })
+  @ApiResponseProperty({ type: 'string' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updatedAt' })
-  @Exclude({ toPlainOnly: true })
+  @ApiResponseProperty({ type: 'string' })
   updatedAt: Date;
 
   @AfterLoad()

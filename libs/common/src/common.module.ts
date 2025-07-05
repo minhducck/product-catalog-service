@@ -33,6 +33,6 @@ import { TimeoutInterceptor } from '@common/common/interceptor/timeout.intercept
       useClass: ExceptionsHandler,
     },
   ],
-  exports: [],
+  exports: [EventEmitterModule],
 })
 export class CommonModule {}

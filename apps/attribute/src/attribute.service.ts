@@ -12,9 +12,9 @@ export class AttributeService extends BaseService<AttributeModel> {
     protected readonly repo: Repository<AttributeModel>,
     @InjectDataSource() protected readonly dataSource: DataSource,
     @Inject(EventEmitter2) protected readonly eventEmitter: EventEmitter2,
-    protected readonly idFieldName = 'uuid',
-    protected readonly eventPrefix = 'attribute-service',
   ) {
+    const idFieldName = 'uuid';
+    const eventPrefix = 'attribute-service';
     super(repo, dataSource, eventEmitter, idFieldName, eventPrefix);
   }
 }

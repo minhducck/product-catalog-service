@@ -1,14 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ApiTags } from '@nestjs/swagger';
+import { ProductModel } from './model/product.model';
 
-@Controller()
+@Controller('products')
 @ApiTags('Product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Get()
-  getHello(): string {
-    return this.productService.getHello();
+  @Post()
+  create(@Body() productDto: ProductModel) {
+    return this.productService.save(productDto);
   }
 }

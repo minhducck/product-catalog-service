@@ -11,6 +11,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Inject } from '@nestjs/common';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { NoSuchEntityException } from '@common/common/exception/no-such-entity.exception';
+import { SearchQueryResult } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
+import { omitBy } from 'lodash';
 
 export abstract class BaseService<T extends BaseModel | BaseEntity> {
   protected repo: Repository<T>;
@@ -26,7 +28,7 @@ export abstract class BaseService<T extends BaseModel | BaseEntity> {
     this.repo = repo;
   }
 
-  async getById(id: number): Promise<T> {
+  async getById(id: string): Promise<T> {
     return this.wrapToEventContainer(
       `${this.eventPrefix}.get-by-id`,
       { id },
@@ -48,7 +50,9 @@ export abstract class BaseService<T extends BaseModel | BaseEntity> {
     );
   }
 
-  async getList(criteria?: FindManyOptions<T>): Promise<[T[], number]> {
+  async getList(
+    criteria?: FindManyOptions<T>,
+  ): Promise<SearchQueryResult<T[]>> {
     return this.wrapToEventContainer(
       `${this.eventPrefix}.get-list`,
       { criteria },
@@ -87,9 +91,13 @@ export abstract class BaseService<T extends BaseModel | BaseEntity> {
     );
   }
 
-  async update(id: number, entity: Partial<T>): Promise<T> {
+  async update(id: string, entity: Partial<T>): Promise<T> {
     const entityFromDb = await this.getById(id);
-    Object.assign(entityFromDb, entity);
+    Object.assign(
+      entityFromDb,
+      omitBy(entity, (value) => value === undefined),
+    );
+
     return this.save(entityFromDb);
   }
 
