@@ -1,0 +1,8 @@
+export enum AttributeDataTypeEnum {
+  URL = 'URL',
+  IMAGE = 'IMAGE',
+  SHORT_TEXT = 'SHORT_TEXT',
+  LONG_TEXT = 'LONG_TEXT',
+  INTEGER = 'INTEGER',
+  FLOAT = 'FLOAT',
+}
