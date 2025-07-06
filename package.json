@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config apps/backend/test/jest-e2e.json",
-    "start:serverless:dev": "nest build --all && serverless offline"
+    "start:serverless:dev": "nest build --all && serverless offline",
+    "deploy:test": "rm -rf node_modules && yarn install --prod && cp ./envs/.env.dev .env && rm -rf .build dist .serverless && yarn build && yarn serverless --stage=test"
   },
   "dependencies": {
     "@codegenie/serverless-express": "^4.16.0",
@@ -38,6 +39,8 @@
     "mysql2": "^3.14.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-plugin-optimize": "^4.2.1-rc.1",
     "typeorm": "^0.3.25"
   },
   "devDependencies": {

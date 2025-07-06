@@ -1,15 +1,35 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: duckonemorec
+#org: duckonemorec
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: product-information-serverless
 
 provider:
   name: aws
   runtime: nodejs20.x
+  stage: ${opt:stage, 'test'}
+  region: ap-southeast-1
+  deploymentMethod: direct
+  endpointType: REGIONAL
+  memorySize: 150
+  timeout: 10
+  logRetentionInDays: 60
+  architecture: arm64
+  disableRollback: false
+  apiGateway:
+    disableDefaultEndpoint: false
+
+useDotenv: true
 
 plugins:
+  - serverless-plugin-optimize
+  - serverless-dotenv-plugin
   - serverless-offline
-
+package:
+  patterns:
+    - 'dist/**'
+    - '!node_modules/typescript/**'
+    - '!node_modules/@types/**'
+    - '!node_modules/aws-sdk/**'
 functions:
   categories:
     handler: dist/apps/category/apps/category/src/serverless.handler
