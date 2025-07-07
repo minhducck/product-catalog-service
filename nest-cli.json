@@ -47,15 +47,6 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
-    "entity": {
-      "type": "application",
-      "root": "apps/entity",
-      "entryFile": "main",
-      "sourceRoot": "apps/entity/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/entity/tsconfig.app.json"
-      }
-    },
     "mysql-database": {
       "type": "library",
       "root": "libs/mysql-database",
