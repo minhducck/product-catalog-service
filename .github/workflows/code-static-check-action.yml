@@ -1,4 +1,4 @@
-name: Check Fnb Backend Code
+name: Backend Pipeline
 run-name: ${{ github.actor }} is pushing a new commit 🚀
 on: [ push ]
 jobs:
