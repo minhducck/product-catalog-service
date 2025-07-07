@@ -9,7 +9,7 @@ import {
 import { BaseModel } from '../model/base.model';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { BadRequestException, Inject } from '@nestjs/common';
+import { BadRequestException, Inject, Logger } from '@nestjs/common';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { NoSuchEntityException } from '@common/common/exception/no-such-entity.exception';
 import { SearchQueryResult } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
@@ -19,6 +19,7 @@ import { AlreadyExistedException } from '@common/common/exception/already-existe
 export abstract class BaseService<T extends BaseModel> {
   protected repo: Repository<T>;
   private static initiateConnectionCleaner?: NodeJS.Timeout = undefined;
+  private logger: Logger;
 
   protected constructor(
     repo: Repository<T>,
@@ -28,9 +29,13 @@ export abstract class BaseService<T extends BaseModel> {
     protected readonly eventPrefix = 'service',
   ) {
     this.repo = repo;
+    this.logger = new Logger(this.constructor.name);
   }
 
   handleErrorCodes(reason: Error): Error {
+    this.logger.error(
+      `Error occurred while handling database: ${reason.message}`,
+    );
     if (reason instanceof QueryFailedError) {
       switch (reason.driverError.code) {
         case 'ER_DUP_ENTRY':
@@ -107,6 +112,7 @@ export abstract class BaseService<T extends BaseModel> {
         queryRunner.manager
           .save<T>(entity, {
             reload: true,
+            listeners: true,
             transaction: false,
           })
           .catch((reason) => {

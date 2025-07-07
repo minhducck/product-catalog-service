@@ -36,6 +36,7 @@ export default class DatabaseConfig implements TypeOrmOptionsFactory {
       synchronize: true,
       poolSize: +this.configService.get('DBPOOLSIZE') || 20,
       logging: appEnv === 'production' ? ['error', 'warn', 'migration'] : 'all',
+      cache: true,
     };
 
     return databaseConfig;

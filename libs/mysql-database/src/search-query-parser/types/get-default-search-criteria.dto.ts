@@ -7,17 +7,18 @@ import {
 } from '@database/mysql-database/search-query-parser';
 import { IsInstance, IsOptional } from 'class-validator';
 
-export const defaultSearchCriteriaDto: SearchQueryInterface = {
-  sortOrder: {
-    sortField: 'createdAt',
-    direction: 'DESC',
-  },
-  pagination: {
-    limit: 10,
-    page: 1,
-  },
-  query: undefined,
-};
+export const getDefaultSearchCriteriaDto = (): SearchQueryInterface =>
+  ({
+    sortOrder: {
+      sortField: 'createdAt',
+      direction: 'DESC',
+    },
+    pagination: {
+      limit: 10,
+      page: 1,
+    },
+    query: undefined,
+  }) as SearchQueryInterface;
 
 @ApiSchema()
 export class DefaultSearchCriteriaDto implements SearchQueryInterface {
