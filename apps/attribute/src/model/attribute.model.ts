@@ -66,6 +66,8 @@ export class AttributeModel extends BaseModel<AttributeModel> {
   @OneToMany(() => AttributeOptionModel, (option) => option.attribute, {
     eager: true,
     nullable: true,
+    cascade: true,
+    persistence: true,
   })
   options?: AttributeOptionModel[];
 

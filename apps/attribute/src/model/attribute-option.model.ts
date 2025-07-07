@@ -15,7 +15,11 @@ import { Exclude } from 'class-transformer';
 @Unique(['attribute', 'optionValueData'])
 export class AttributeOptionModel extends BaseModel<AttributeOptionModel> {
   @JoinColumn()
-  @ManyToOne(() => AttributeModel, (attribute) => attribute.options)
+  @ManyToOne(() => AttributeModel, (attribute) => attribute.options, {
+    onDelete: 'CASCADE',
+    orphanedRowAction: 'delete',
+    createForeignKeyConstraints: true,
+  })
   @Exclude({ toPlainOnly: true })
   attribute?: AttributeModel;
 

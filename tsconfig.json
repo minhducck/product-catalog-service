@@ -18,6 +18,12 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@app/attribute": [
+        "apps/attribute/src"
+      ],
+      "@app/attribute/*": [
+        "apps/attribute/src/*"
+      ],
       "@app/backend": [
         "apps/backend/src"
       ],
@@ -29,12 +35,6 @@
       ],
       "@app/category/*": [
         "apps/category/src/*"
-      ],
-      "@app/attribute": [
-        "apps/attribute/src"
-      ],
-      "@app/attribute/*": [
-        "apps/attribute/src/*"
       ],
       "@app/product": [
         "apps/product/src"

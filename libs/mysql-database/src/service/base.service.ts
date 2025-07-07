@@ -200,10 +200,11 @@ export abstract class BaseService<T extends BaseModel> {
     return result;
   }
 
-  async saveBulk(list: T[]) {
+  async saveBulk(list: T[]): Promise<T[]> {
     return this.wrapToTransactionContainer<typeof list>(
       `${this.eventPrefix}.save-bulk`,
-      async (queryRunner) => queryRunner.manager.save(list),
+      async (queryRunner) =>
+        queryRunner.manager.save(list, { reload: true, chunk: 1000 }),
       { list },
     );
   }

@@ -7,6 +7,7 @@ import { AttributeModel } from './model/attribute.model';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AttributeOptionModel } from './model/attribute-option.model';
 import { AttributeOptionService } from './services/attribute-option.service';
+import { AttributeOptionController } from '@app/attribute/controllers/attribute-option.controller';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { AttributeOptionService } from './services/attribute-option.service';
     MysqlDatabaseModule,
     TypeOrmModule.forFeature([AttributeModel, AttributeOptionModel]),
   ],
-  controllers: [AttributeController],
+  controllers: [AttributeController, AttributeOptionController],
   providers: [AttributeService, AttributeOptionService],
   exports: [AttributeService, AttributeOptionService],
 })

@@ -35,9 +35,10 @@ export class CategoryModel extends BaseModel<CategoryModel> {
   @ManyToOne(() => CategoryModel, {
     createForeignKeyConstraints: true,
     nullable: true,
-    persistence: true,
-    cascade: false,
-    onDelete: 'SET NULL',
+    persistence: false,
+    cascade: true,
+    onDelete: 'CASCADE',
+    orphanedRowAction: 'nullify',
   })
   @JoinColumn({ name: 'parentId', referencedColumnName: 'uuid' })
   @ApiProperty({ description: 'Parent ID', type: 'string', nullable: true })
@@ -48,14 +49,11 @@ export class CategoryModel extends BaseModel<CategoryModel> {
   children: CategoryModel[];
 
   @ManyToMany(() => AttributeModel, {
-    cascade: false,
-    onDelete: 'NO ACTION',
+    cascade: true,
     nullable: true,
-    createForeignKeyConstraints: true,
-    persistence: false,
-    lazy: true,
+    persistence: true,
   })
-  @JoinTable({ name: 'category_assigned_attribute' })
+  @JoinTable({ name: 'category_attribute_linkage' })
   assignedAttributes: AttributeModel[] | Promise<AttributeModel[]>;
 
   @OneToMany(() => ProductModel, (product) => product.category, {

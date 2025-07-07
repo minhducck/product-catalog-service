@@ -20,6 +20,7 @@ import { ApiResponse } from '@nestjs/swagger';
 import { CategoryTreeResponse } from '../types/category-tree-response';
 import { CategoryCreationDto } from '../types/category-creation.dto';
 import { NoSuchEntityException } from '@common/common/exception/no-such-entity.exception';
+import { CategoryUpdateDto } from '@app/category/types/category-update.dto';
 
 @Controller('categories')
 export class CategoryController {
@@ -65,7 +66,7 @@ export class CategoryController {
   }
 
   @Put(':id')
-  update(@Param('id') id: bigint, @Body() categoryDto: CategoryModel) {
+  update(@Param('id') id: bigint, @Body() categoryDto: CategoryUpdateDto) {
     return this.categoryService.update(id, categoryDto);
   }
 

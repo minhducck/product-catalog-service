@@ -56,6 +56,15 @@
         "tsConfigPath": "libs/mysql-database/tsconfig.lib.json"
       }
     },
+    "performance-fixtures": {
+      "type": "application",
+      "root": "apps/performance-fixtures",
+      "entryFile": "main",
+      "sourceRoot": "apps/performance-fixtures/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/performance-fixtures/tsconfig.app.json"
+      }
+    },
     "product": {
       "type": "application",
       "root": "apps/product",

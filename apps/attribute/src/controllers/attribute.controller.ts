@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Post,
   Query,
   UseInterceptors,
@@ -18,14 +17,7 @@ import { SearchQueryResponseInterceptor } from '@database/mysql-database/interce
 import { AttributeCreationDto } from '../types/attribute-creation.dto';
 import { AttributeModel } from '../model/attribute.model';
 import { AttributeOptionService } from '../services/attribute-option.service';
-import { AttributeOptionModel } from '../model/attribute-option.model';
-import { Equal } from 'typeorm';
-import { merge } from 'lodash';
-import {
-  QueryItemInterface,
-  SearchQueryInterface,
-} from '@database/mysql-database/search-query-parser';
-import { AttributeOptionCreationDto } from '../types/attribute-option-creation.dto';
+import { SearchQueryInterface } from '@database/mysql-database/search-query-parser';
 
 @Controller('attributes')
 export class AttributeController {
@@ -56,45 +48,5 @@ export class AttributeController {
     const entity = AttributeModel.create<AttributeModel>(creationDto);
 
     return this.attributeService.save(entity);
-  }
-
-  @Get('/:id/options')
-  @UseInterceptors(SearchQueryResponseInterceptor)
-  @ApiQuery({ name: 'searchQuery', type: DefaultSearchCriteriaDto })
-  getAttributeOptions(
-    @Param('id') id: bigint,
-    @Query()
-    searchQuery: SearchQueryInterface = getDefaultSearchCriteriaDto(),
-  ) {
-    searchQuery.query = [
-      searchQuery.query,
-      { field: 'attribute.uuid', value: id },
-    ].filter(Boolean) as QueryItemInterface[];
-    const searchOptionQuery =
-      parseHttpQueryToFindOption<AttributeOptionModel>(searchQuery);
-
-    searchOptionQuery.where = searchOptionQuery.where ?? {};
-    searchOptionQuery.where = merge(searchOptionQuery.where, {
-      attribute: {
-        uuid: Equal(id),
-      },
-    });
-
-    return this.optionService.getList(searchOptionQuery);
-  }
-
-  @Post('/:id/options')
-  @ApiBody({ required: true, type: AttributeOptionCreationDto })
-  async createAttributeOption(
-    @Param('id') id: bigint,
-    @Body() optionDto: AttributeOptionCreationDto,
-  ): Promise<AttributeOptionModel> {
-    const attribute = await this.attributeService.getById(id);
-    const newOption = AttributeOptionModel.create<AttributeOptionModel>({
-      ...optionDto,
-      attribute: attribute,
-    });
-
-    return this.optionService.save(newOption);
   }
 }
