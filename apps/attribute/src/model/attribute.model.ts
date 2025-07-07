@@ -63,10 +63,9 @@ export class AttributeModel extends BaseModel<AttributeModel> {
   })
   isValueRequired: boolean;
 
-  @OneToMany(
-    () => AttributeOptionModel,
-    (attributeOptionModel) => attributeOptionModel.attribute,
-    { onDelete: 'CASCADE', orphanedRowAction: 'delete', cascade: true },
-  )
-  options?: AttributeOptionModel;
+  @OneToMany(() => AttributeOptionModel, (option) => option.attribute, {
+    eager: true,
+    nullable: true,
+  })
+  options?: AttributeOptionModel[];
 }

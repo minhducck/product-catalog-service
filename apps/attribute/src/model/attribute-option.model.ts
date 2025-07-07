@@ -1,26 +1,32 @@
 import { BaseModel } from '@database/mysql-database/model/base.model';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  Unique,
+} from 'typeorm';
 import { AttributeModel } from './attribute.model';
-import { OptionEntryClass } from '../types/option-entry.class';
 
-@Entity({ name: 'attribute_options' })
+@Entity({ name: 'attribute_options', comment: 'Attribute options' })
+@Unique(['attribute', 'optionValueData'])
 export class AttributeOptionModel extends BaseModel<AttributeOptionModel> {
-  @ManyToOne(
-    () => AttributeModel,
-    (attribute: AttributeModel) => attribute.options,
-    { lazy: true, nullable: true, createForeignKeyConstraints: true },
-  )
-  @JoinColumn({ name: 'attributeId' })
-  attribute: AttributeModel;
+  @JoinColumn()
+  @ManyToOne(() => AttributeModel, (attribute) => attribute.options)
+  attribute?: AttributeModel;
 
-  @Column({
-    type: 'json',
-    // default: () => ({
-    //   value: null,
-    //   metadata: {
-    //     dataTypes: 'string',
-    //   },
-    // }),
-  })
-  optionValueData: OptionEntryClass;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  optionValueData: string;
+
+  attributeUuid?: bigint;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  protected populateAttributeId() {
+    if (this.attribute && this.attribute.uuid) {
+      this.attributeUuid = this.attribute.uuid;
+    }
+  }
 }

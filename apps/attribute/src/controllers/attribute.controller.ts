@@ -10,9 +10,9 @@ import {
 import { AttributeService } from '../services/attribute.service';
 import { ApiBody, ApiQuery } from '@nestjs/swagger';
 import {
-  defaultSearchCriteriaDto,
   DefaultSearchCriteriaDto,
-} from '@database/mysql-database/search-query-parser/types/default-search-criteria.dto';
+  getDefaultSearchCriteriaDto,
+} from '@database/mysql-database/search-query-parser/types/get-default-search-criteria.dto';
 import { parseHttpQueryToFindOption } from '@database/mysql-database/search-query-parser/parser';
 import { SearchQueryResponseInterceptor } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { AttributeCreationDto } from '../types/attribute-creation.dto';
@@ -25,6 +25,7 @@ import {
   QueryItemInterface,
   SearchQueryInterface,
 } from '@database/mysql-database/search-query-parser';
+import { AttributeOptionCreationDto } from '../types/attribute-option-creation.dto';
 
 @Controller('attributes')
 export class AttributeController {
@@ -42,7 +43,7 @@ export class AttributeController {
   @UseInterceptors(SearchQueryResponseInterceptor)
   getAttributeList(
     @Query('searchQuery')
-    searchQuery: string | SearchQueryInterface = defaultSearchCriteriaDto,
+    searchQuery: string | SearchQueryInterface = getDefaultSearchCriteriaDto(),
   ) {
     return this.attributeService.getList(
       parseHttpQueryToFindOption(searchQuery),
@@ -62,10 +63,9 @@ export class AttributeController {
   @ApiQuery({ name: 'searchQuery', type: DefaultSearchCriteriaDto })
   getAttributeOptions(
     @Param('id') id: bigint,
-    @Query('searchQuery')
-    searchQuery: SearchQueryInterface = defaultSearchCriteriaDto,
+    @Query()
+    searchQuery: SearchQueryInterface = getDefaultSearchCriteriaDto(),
   ) {
-    console.log(searchQuery);
     searchQuery.query = [
       searchQuery.query,
       { field: 'attribute.uuid', value: id },
@@ -81,5 +81,21 @@ export class AttributeController {
     });
 
     return this.optionService.getList(searchOptionQuery);
+  }
+
+  @Post('/:id/options')
+  @UseInterceptors(SearchQueryResponseInterceptor)
+  @ApiBody({ required: true, type: AttributeOptionCreationDto })
+  async createAttributeOption(
+    @Param('id') id: bigint,
+    @Body() optionDto: AttributeOptionCreationDto,
+  ) {
+    const attribute = await this.attributeService.getById(id);
+    const newOption = AttributeOptionModel.create<AttributeOptionModel>({
+      ...optionDto,
+      attribute: attribute,
+    });
+
+    return this.optionService.save(newOption);
   }
 }

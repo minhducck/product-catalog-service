@@ -16,13 +16,12 @@ import {
 } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { CategoryTreeType } from '../types/category-tree.type';
 import { buildCategoryTree } from '../helper/build-category-tree';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
 import { CategoryTreeResponse } from '../types/category-tree-response';
 import { CategoryCreationDto } from '../types/category-creation.dto';
 import { NoSuchEntityException } from '@common/common/exception/no-such-entity.exception';
 
 @Controller('categories')
-@ApiTags('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
