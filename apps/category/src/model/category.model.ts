@@ -14,8 +14,8 @@ import {
   ApiProperty,
   ApiResponseProperty,
 } from '@nestjs/swagger/dist/decorators';
-import { AttributeModel } from '@app/attribute/model/attribute.model';
-import { ProductModel } from '@app/product/model/product.model';
+import { AttributeModel } from '../../../attribute/src/model/attribute.model';
+import { ProductModel } from '../../../product/src/model/product.model';
 
 @Entity({
   name: 'categories',

@@ -8,7 +8,7 @@ export class MysqlDatabaseService {
 
   async healthCheck(): Promise<boolean> {
     return this.dataSource
-      .query('SELECT ALIVE')
+      .query('SELECT "ALIVE"')
       .then((value) => value === 'ALIVE');
   }
 }

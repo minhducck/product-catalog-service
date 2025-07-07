@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BaseService } from '@database/mysql-database/service/base.service';
-import { ProductModel } from './model/product.model';
+import { ProductModel } from '../model/product.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm/dist/common/typeorm.decorators';

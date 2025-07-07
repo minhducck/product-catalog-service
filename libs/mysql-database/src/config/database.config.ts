@@ -13,8 +13,6 @@ export default class DatabaseConfig implements TypeOrmOptionsFactory {
   ) {}
 
   createTypeOrmOptions(): TypeOrmModuleAsyncOptions {
-    console.log('Initializing Database Connector');
-
     const baseSearch = path.resolve(__dirname + '/../../../../../');
     const appEnv: string = this.configService.get('ENV', 'dev');
     const databaseConfig: TypeOrmModuleOptions = {

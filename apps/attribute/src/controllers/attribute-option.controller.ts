@@ -26,7 +26,7 @@ import {
   SearchQueryInterface,
 } from '@database/mysql-database/search-query-parser';
 import { AttributeOptionCreationDto } from '../types/attribute-option-creation.dto';
-import { AttributeOptionUpdateDto } from '@app/attribute/types/attribute-option-update.dto';
+import { AttributeOptionUpdateDto } from '../types/attribute-option-update.dto';
 
 @Controller('attributes/:attributeId/options')
 export class AttributeOptionController {

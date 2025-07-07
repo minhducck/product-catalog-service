@@ -7,6 +7,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
+    "allowJs": true,
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -18,30 +19,6 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/attribute": [
-        "apps/attribute/src"
-      ],
-      "@app/attribute/*": [
-        "apps/attribute/src/*"
-      ],
-      "@app/backend": [
-        "apps/backend/src"
-      ],
-      "@app/backend/*": [
-        "apps/backend/src/*"
-      ],
-      "@app/category": [
-        "apps/category/src"
-      ],
-      "@app/category/*": [
-        "apps/category/src/*"
-      ],
-      "@app/product": [
-        "apps/product/src"
-      ],
-      "@app/product/*": [
-        "apps/product/src/*"
-      ],
       "@common/common": [
         "libs/common/src"
       ],

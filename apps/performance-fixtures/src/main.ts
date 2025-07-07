@@ -1,13 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { PerformanceFixturesModule } from './performance-fixtures.module';
-import { AttributeOptionModel } from '@app/attribute/model/attribute-option.model';
-import { AttributeModel } from '@app/attribute/model/attribute.model';
-import { AttributeDataTypeEnum } from '@app/attribute/types/attribute-data-type.enum';
-import { AttributeService } from '@app/attribute/services/attribute.service';
-import { CategoryModel } from '@app/category/model/category.model';
 import { fakerEN } from '@faker-js/faker';
-import { CategoryService } from '@app/category/services/category.service';
 import { random, sampleSize } from 'lodash';
+import { CategoryService } from '../../category/src/services/category.service';
+import { AttributeModel } from '../../attribute/src/model/attribute.model';
+import { CategoryModel } from '../../category/src/model/category.model';
+import { AttributeOptionModel } from '../../attribute/src/model/attribute-option.model';
+import { AttributeDataTypeEnum } from '../../attribute/src/types/attribute-data-type.enum';
+import { AttributeService } from '../../attribute/src/services/attribute.service';
 
 interface IProfile {
   numberOfProducts: number;
