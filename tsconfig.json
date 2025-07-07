@@ -18,6 +18,30 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@app/backend": [
+        "apps/backend/src"
+      ],
+      "@app/backend/*": [
+        "apps/backend/src/*"
+      ],
+      "@app/category": [
+        "apps/category/src"
+      ],
+      "@app/category/*": [
+        "apps/category/src/*"
+      ],
+      "@app/attribute": [
+        "apps/attribute/src"
+      ],
+      "@app/attribute/*": [
+        "apps/attribute/src/*"
+      ],
+      "@app/product": [
+        "apps/product/src"
+      ],
+      "@app/product/*": [
+        "apps/product/src/*"
+      ],
       "@common/common": [
         "libs/common/src"
       ],
