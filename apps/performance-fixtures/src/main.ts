@@ -33,6 +33,7 @@ const wrapTimeMeasure = async (action: () => any, task: string) => {
   // const [hrTimeStartSec, hrTimeStartNano] = process.hrtime();
   // const startTime = hrTimeStartSec * 1000 + hrTimeStartNano / 1000000;
 
+  console.log('task', task);
   await action();
 
   // const [hrEndTimeSec, hrEndTimeNano] = process.hrtime();
