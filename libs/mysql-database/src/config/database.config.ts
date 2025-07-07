@@ -16,9 +16,8 @@ export default class DatabaseConfig implements TypeOrmOptionsFactory {
     console.log('Initializing Database Connector');
 
     const baseSearch = path.resolve(__dirname + '/../../../../../');
-    console.log(baseSearch + '/**/model/*.model{.ts,.js}');
-
-    return {
+    const appEnv: string = this.configService.get('ENV', 'dev');
+    const databaseConfig: TypeOrmModuleOptions = {
       type: 'mysql',
       connectorPackage: 'mysql2',
       host: this.configService.get('DBHOST'),
@@ -27,19 +26,18 @@ export default class DatabaseConfig implements TypeOrmOptionsFactory {
       password: this.configService.get('DBPASS'),
       database: this.configService.get('DBNAME'),
       migrationsRun: true,
-      migrations: [__dirname + '/../**/migration/*.migration{.ts,.js}'],
+      migrations: [baseSearch + '/**/migration/*.migration{.ts,.js}'],
       migrationsTableName: 'migrations',
       retryAttempts: 5,
       autoLoadEntities: false,
       connectTimeout: 3000,
-      timezone: '+08:00',
+      timezone: this.configService.get<string>('DB_TIMEZONE', '+08:00'),
       entities: [baseSearch + '/**/model/*.model{.ts,.js}'],
       synchronize: true,
       poolSize: +this.configService.get('DBPOOLSIZE') || 20,
-      logging:
-        process.env.ENV === 'production'
-          ? ['error', 'warn', 'migration']
-          : 'all',
-    } as TypeOrmModuleOptions;
+      logging: appEnv === 'production' ? ['error', 'warn', 'migration'] : 'all',
+    };
+
+    return databaseConfig;
   }
 }
