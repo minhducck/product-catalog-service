@@ -3,7 +3,7 @@ import { SearchPaginationInterface } from './search-pagination.interface';
 import { QueryItemInterface } from './search-query/query-item.interface';
 
 export interface SearchQueryInterface {
-  query?: QueryItemInterface;
+  query?: QueryItemInterface | QueryItemInterface[];
   sortOrder?: SearchSortOrderInterface | [SearchSortOrderInterface];
   pagination?: SearchPaginationInterface;
 }

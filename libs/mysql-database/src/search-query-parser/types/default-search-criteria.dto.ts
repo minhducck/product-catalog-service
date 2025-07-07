@@ -1,10 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger/dist/decorators';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger/dist/decorators';
 import {
   QueryItem,
   SearchPagination,
   SearchQueryInterface,
   SearchSortOrder,
 } from '@database/mysql-database/search-query-parser';
+import { IsInstance, IsOptional } from 'class-validator';
 
 export const defaultSearchCriteriaDto: SearchQueryInterface = {
   sortOrder: {
@@ -15,13 +16,23 @@ export const defaultSearchCriteriaDto: SearchQueryInterface = {
     limit: 10,
     page: 1,
   },
+  query: undefined,
 };
 
+@ApiSchema()
 export class DefaultSearchCriteriaDto implements SearchQueryInterface {
   @ApiProperty({ required: false, type: SearchSortOrder })
+  @IsOptional()
+  @IsInstance(SearchSortOrder)
   sortOrder?: SearchSortOrder | [SearchSortOrder];
+
   @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInstance(SearchPagination)
   pagination?: SearchPagination;
+
   @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInstance(QueryItem)
   query?: QueryItem;
 }

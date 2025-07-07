@@ -1,20 +1,22 @@
 import {
-  BaseEntity,
   DataSource,
+  EntityPropertyNotFoundError,
   FindOneOptions,
+  QueryFailedError,
   QueryRunner,
   Repository,
 } from 'typeorm';
 import { BaseModel } from '../model/base.model';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Inject } from '@nestjs/common';
+import { BadRequestException, Inject } from '@nestjs/common';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { NoSuchEntityException } from '@common/common/exception/no-such-entity.exception';
 import { SearchQueryResult } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { omitBy } from 'lodash';
+import { AlreadyExistedException } from '@common/common/exception/already-existed.exception';
 
-export abstract class BaseService<T extends BaseModel | BaseEntity> {
+export abstract class BaseService<T extends BaseModel> {
   protected repo: Repository<T>;
   private static initiateConnectionCleaner?: NodeJS.Timeout = undefined;
 
@@ -22,13 +24,25 @@ export abstract class BaseService<T extends BaseModel | BaseEntity> {
     repo: Repository<T>,
     @InjectDataSource() protected readonly dataSource: DataSource,
     @Inject(EventEmitter2) protected readonly eventEmitter: EventEmitter2,
-    protected readonly idFieldName = 'uuid',
+    protected readonly idFieldName: keyof T = 'uuid',
     protected readonly eventPrefix = 'service',
   ) {
     this.repo = repo;
   }
 
-  async getById(id: string): Promise<T> {
+  handleErrorCodes(reason: Error): Error {
+    if (reason instanceof QueryFailedError) {
+      switch (reason.driverError.code) {
+        case 'ER_DUP_ENTRY':
+          return new AlreadyExistedException('Duplicate entry found.');
+      }
+    } else if (reason instanceof EntityPropertyNotFoundError) {
+      return new BadRequestException(reason.message);
+    }
+    return reason;
+  }
+
+  async getById(id: bigint): Promise<T> {
     return this.wrapToEventContainer(
       `${this.eventPrefix}.get-by-id`,
       { id },
@@ -56,7 +70,14 @@ export abstract class BaseService<T extends BaseModel | BaseEntity> {
     return this.wrapToEventContainer(
       `${this.eventPrefix}.get-list`,
       { criteria },
-      () => this.repo.findAndCount(criteria),
+      async () => {
+        try {
+          return this.repo.findAndCount(criteria);
+        } catch (reason) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          throw this.handleErrorCodes(reason);
+        }
+      },
     );
   }
 
@@ -83,15 +104,20 @@ export abstract class BaseService<T extends BaseModel | BaseEntity> {
     return this.wrapToTransactionContainer(
       `${this.eventPrefix}.save`,
       async (queryRunner) =>
-        queryRunner.manager.save<T>(entity, {
-          reload: true,
-          transaction: false,
-        }),
+        queryRunner.manager
+          .save<T>(entity, {
+            reload: true,
+            transaction: false,
+          })
+          .catch((reason) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            throw this.handleErrorCodes(reason);
+          }),
       { entity },
     );
   }
 
-  async update(id: string, entity: Partial<T>): Promise<T> {
+  async update(id: bigint, entity: Partial<T>): Promise<T> {
     const entityFromDb = await this.getById(id);
     Object.assign(
       entityFromDb,
@@ -174,6 +200,12 @@ export abstract class BaseService<T extends BaseModel | BaseEntity> {
       async (queryRunner) => queryRunner.manager.save(list),
       { list },
     );
+  }
+
+  isExistId(id: bigint) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    return this.repo.existsBy({ [this.idFieldName]: id });
   }
 
   getRepository() {

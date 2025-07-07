@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BaseService } from '@database/mysql-database/service/base.service';
-import { CategoryModel } from './model/category.model';
+import { CategoryModel } from '../model/category.model';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';

@@ -1,4 +1,4 @@
-import merge from 'lodash/merge';
+import { isString, merge } from 'lodash';
 import {
   QueryItemInterface,
   SearchPaginationInterface,
@@ -12,6 +12,7 @@ import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { isArray } from 'class-validator';
 import { And } from 'typeorm';
 import { createNestedObjectFromString } from './parser/create-nested-object-from.string';
+import { BadRequestException } from '@nestjs/common';
 
 export const DEFAULT_SEARCH_PAGE_SIZE = 100;
 
@@ -35,6 +36,9 @@ function parseSubQuery<T>(
 ): object {
   if (isArray(subQuery)) {
     return subQuery.reduce((prev, current) => {
+      if (!current.field) {
+        throw new BadRequestException('SubQuery field was not specified');
+      }
       if (prev[current.field]) {
         prev[current.field] = And(
           prev[current.field],
@@ -78,8 +82,18 @@ export function preparePagination(pagination?: SearchPaginationInterface) {
 }
 
 export function parseHttpQueryToFindOption<T>(
-  searchQuery: SearchQueryInterface,
+  searchQuery: string | SearchQueryInterface,
 ): FindManyOptions<T> {
+  try {
+    if (isString(searchQuery)) {
+      searchQuery = JSON.parse(searchQuery) as SearchQueryInterface;
+    }
+  } catch (e) {
+    throw new BadRequestException(
+      'Unable to parse search query. Please check your search query.',
+      { cause: e },
+    );
+  }
   const where: FindOptionsWhere<T>[] | FindOptionsWhere<T> =
     prepareQueryCondition<T>(searchQuery?.query);
 
@@ -89,6 +103,7 @@ export function parseHttpQueryToFindOption<T>(
     for (let i = 0; i < where.length; i++) {
       nestedObject[i] = {};
       for (const fieldName of Object.keys(where[i])) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         nestedObject[i] = merge(
           nestedObject[i],
           createNestedObjectFromString(fieldName, where[i][fieldName]),

@@ -1,45 +1,43 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 
+export enum CompareOperator {
+  EQ = 'eq',
+  LT = 'lt',
+  LTEQ = 'lteq',
+  GT = 'gt',
+  GTEQ = 'gteq',
+  ISNULL = 'isnull',
+  NOTNULL = 'notnull',
+  LIKE = 'like',
+  IN = 'in',
+  AND = 'and',
+  OR = 'or',
+  BETWEEN = 'between',
+  NOT = 'not',
+  ANY = 'any',
+}
 export interface QueryItemInterface {
-  field: string;
+  field?: string;
   value: any;
 
-  operation:
-    | 'eq'
-    | 'lt'
-    | 'lteq'
-    | 'gt'
-    | 'gteq'
-    | 'isnull'
-    | 'notnull'
-    | 'like'
-    | 'in'
-    | 'and'
-    | 'or'
-    | 'between'
-    | 'not'
-    | 'any';
+  operation: CompareOperator;
 }
 
 export class QueryItem implements QueryItemInterface {
-  @ApiProperty()
-  field: string;
-  @ApiProperty()
-  operation:
-    | 'eq'
-    | 'lt'
-    | 'lteq'
-    | 'gt'
-    | 'gteq'
-    | 'isnull'
-    | 'notnull'
-    | 'like'
-    | 'in'
-    | 'and'
-    | 'or'
-    | 'between'
-    | 'not'
-    | 'any';
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Field name' })
+  field?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Operation',
+    enum: CompareOperator,
+    default: CompareOperator.EQ,
+  })
+  operation: CompareOperator;
+
+  @ApiProperty({
+    required: false,
+    description: 'Value',
+  })
   value: any;
 }

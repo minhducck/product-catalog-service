@@ -1,8 +1,8 @@
-import { QueryItemInterface } from '../interface';
-import isArray from 'lodash/isArray';
-import isEmpty from 'lodash/isEmpty';
+import { CompareOperator, QueryItemInterface } from '../interface';
+import { isArray, isEmpty } from 'lodash';
 import { OPERATOR_MAPPING } from './operator.mapping';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
+import { BadRequestException } from '@nestjs/common';
 
 const isInstanceOfQueryInterface = (
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
@@ -32,24 +32,27 @@ export function parseQuery<T>(
     normalizeValue.push(parseQuery(item.value) as FindOptionsWhere<T>);
   } else {
     if (!item.operation) {
-      item.operation = 'eq';
+      item.operation = CompareOperator.EQ;
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+
+    if (!item.field) {
+      throw new BadRequestException('Query field was not specified');
+    }
+
     return {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       [item.field]: OPERATOR_MAPPING[item.operation](item.value),
-    };
+    } as FindOptionsWhere<T>;
   }
 
   if (!item.operation) {
-    item.operation = 'eq';
+    item.operation = CompareOperator.EQ;
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  if (!item.field) {
+    throw new BadRequestException('Query field was not specified');
+  }
   return {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     [item.field]: OPERATOR_MAPPING[item.operation](normalizeValue),
-  };
+  } as FindOptionsWhere<T>;
 }

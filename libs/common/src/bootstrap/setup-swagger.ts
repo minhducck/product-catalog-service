@@ -20,7 +20,6 @@ export function setupSwagger(app: INestApplication) {
     .setTermsOfService(
       `Internal API uses only - Any external users are prohibited.`,
     )
-    .setBasePath(`${appVersion}`)
     .build();
 
   const options: SwaggerDocumentOptions = {
@@ -29,6 +28,9 @@ export function setupSwagger(app: INestApplication) {
       methodKey: string,
       version: string,
     ) => `${controllerKey} - ${methodKey} - ${version}`,
+    autoTagControllers: true,
+    ignoreGlobalPrefix: false,
+    deepScanRoutes: true,
   };
 
   SwaggerModule.setup(

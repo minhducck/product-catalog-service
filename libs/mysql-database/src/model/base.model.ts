@@ -5,7 +5,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, omitBy } from 'lodash';
 import { Exclude, instanceToPlain } from 'class-transformer';
 import { generateULID } from '@common/common/helper/generate-ulid';
 import { ApiResponseProperty } from '@nestjs/swagger/dist/decorators';
@@ -14,7 +14,19 @@ export class BaseModel<T = any> {
   #originData: object;
 
   constructor(init?: Partial<T>) {
-    Object.assign(this, init ?? {});
+    Object.assign(
+      this,
+      omitBy(init ?? {}, (value) => value === undefined),
+    );
+  }
+
+  public static create<TEntity = object>(entity: Partial<TEntity>) {
+    const instance = new this<TEntity>();
+    Object.assign(
+      instance,
+      omitBy(entity ?? {}, (value) => value === undefined),
+    );
+    return instance as TEntity;
   }
 
   @PrimaryColumn({

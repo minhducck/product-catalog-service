@@ -1,19 +1,36 @@
 import {
-  Not,
+  Any,
+  Between,
   Equal,
+  EqualOperator,
+  FindOperator,
+  In,
+  IsNull,
   LessThan,
   LessThanOrEqual,
+  Like,
   MoreThan,
   MoreThanOrEqual,
-  In,
-  Like,
-  IsNull,
-  Between,
-  Any,
-  And,
+  Not,
 } from 'typeorm';
 
-export const OPERATOR_MAPPING: Record<string, any> = {
+export const OPERATOR_MAPPING: {
+  not: <T>(value: FindOperator<T> | T) => FindOperator<T>;
+  eq: <T>(value: FindOperator<T> | T) => EqualOperator<T>;
+  lt: <T>(value: FindOperator<T> | T) => FindOperator<T>;
+  lteq: <T>(value: FindOperator<T> | T) => FindOperator<T>;
+  gt: <T>(value: FindOperator<T> | T) => FindOperator<T>;
+  gteq: <T>(value: FindOperator<T> | T) => FindOperator<T>;
+  in: <T>(value: readonly T[] | FindOperator<T>) => FindOperator<any>;
+  like: <T>(value: FindOperator<T> | T) => FindOperator<T>;
+  isnull: () => FindOperator<any>;
+  notnull: () => FindOperator<any>;
+  between: <T>(
+    from: FindOperator<T> | T,
+    to: FindOperator<T> | T,
+  ) => FindOperator<T>;
+  any: <T>(value: readonly T[] | FindOperator<T>) => FindOperator<T>;
+} = {
   not: Not,
   eq: Equal,
   lt: LessThan,

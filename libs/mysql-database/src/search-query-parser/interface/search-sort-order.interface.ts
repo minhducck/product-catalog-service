@@ -6,9 +6,18 @@ export interface SearchSortOrderInterface {
   direction: FindOptionsOrderValue;
 }
 
+export enum SortOrderDirectionEnum {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
 export class SearchSortOrder implements SearchSortOrderInterface {
-  @ApiProperty()
+  @ApiProperty({
+    default: SortOrderDirectionEnum.DESC,
+    enum: SortOrderDirectionEnum,
+  })
   direction: FindOptionsOrderValue;
-  @ApiProperty()
+
+  @ApiProperty({ default: 'createdAt' })
   sortField: string;
 }

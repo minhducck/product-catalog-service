@@ -2,11 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { Callback, Context, Handler } from 'aws-lambda';
 import { configure } from '@codegenie/serverless-express';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import {
-  setupApiVersioning,
-  setupObjectValidation,
-  setupSwagger,
-} from '@common/common/bootstrap';
+import { setupApiVersioning, setupSwagger } from '@common/common/bootstrap';
 import { AttributeModule } from './attribute.module';
 
 let server: Handler;
@@ -15,7 +11,6 @@ async function bootstrap(): Promise<Handler> {
   const app: NestExpressApplication = await NestFactory.create(AttributeModule);
 
   setupSwagger(app);
-  setupObjectValidation(app);
   setupApiVersioning(app);
   await app.init();
 

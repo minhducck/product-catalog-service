@@ -1,0 +1,48 @@
+name: Check Fnb Backend Code
+run-name: ${{ github.actor }} is pushing a new commit 🚀
+on: [ push ]
+jobs:
+  Static-Code-Check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🚨 Code static verification on branch ${{ github.ref }}."
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Installing the node engine.
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install service deps
+        run: yarn
+
+      - name: Check Prettier format
+        run: yarn run format -c
+
+      - name: Check ESLint
+        run: yarn run lint
+
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+
+  Build-Source-Code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo "🚧 build source code on branch ${{ github.ref }}."
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Installing the node engine.
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install service deps
+        run: yarn
+
+      - name: Run build apps
+        run: yarn run build --all
+
+      - run: echo "🍏 This job's status is ${{ job.status }}."
