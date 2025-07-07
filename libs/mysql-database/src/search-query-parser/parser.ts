@@ -1,18 +1,18 @@
-import { isString, merge } from 'lodash';
+import {merge} from 'lodash';
 import {
   QueryItemInterface,
   SearchPaginationInterface,
   SearchQueryInterface,
   SearchSortOrderInterface,
 } from './interface';
-import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
-import { parseQuery } from './parser/parse-query';
-import { FindOptionsOrder } from 'typeorm/find-options/FindOptionsOrder';
-import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-import { isArray } from 'class-validator';
-import { And } from 'typeorm';
-import { createNestedObjectFromString } from './parser/create-nested-object-from.string';
-import { BadRequestException } from '@nestjs/common';
+import {FindManyOptions} from 'typeorm/find-options/FindManyOptions';
+import {parseQuery} from './parser/parse-query';
+import {FindOptionsOrder} from 'typeorm/find-options/FindOptionsOrder';
+import {FindOptionsWhere} from 'typeorm/find-options/FindOptionsWhere';
+import {isArray} from 'class-validator';
+import {And} from 'typeorm';
+import {createNestedObjectFromString} from './parser/create-nested-object-from.string';
+import {BadRequestException} from '@nestjs/common';
 
 export const DEFAULT_SEARCH_PAGE_SIZE = 100;
 
@@ -85,7 +85,7 @@ export function parseHttpQueryToFindOption<T>(
   searchQuery: string | SearchQueryInterface,
 ): FindManyOptions<T> {
   try {
-    if (isString(searchQuery)) {
+    if (typeof (searchQuery) === 'string') {
       searchQuery = JSON.parse(searchQuery) as SearchQueryInterface;
     }
   } catch (e) {
