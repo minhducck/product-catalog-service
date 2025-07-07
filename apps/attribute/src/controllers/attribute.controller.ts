@@ -84,12 +84,11 @@ export class AttributeController {
   }
 
   @Post('/:id/options')
-  @UseInterceptors(SearchQueryResponseInterceptor)
   @ApiBody({ required: true, type: AttributeOptionCreationDto })
   async createAttributeOption(
     @Param('id') id: bigint,
     @Body() optionDto: AttributeOptionCreationDto,
-  ) {
+  ): Promise<AttributeOptionModel> {
     const attribute = await this.attributeService.getById(id);
     const newOption = AttributeOptionModel.create<AttributeOptionModel>({
       ...optionDto,
