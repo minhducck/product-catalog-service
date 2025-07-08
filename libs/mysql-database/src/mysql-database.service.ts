@@ -7,8 +7,6 @@ export class MysqlDatabaseService {
   @InjectDataSource() private readonly dataSource: DataSource;
 
   async healthCheck(): Promise<boolean> {
-    return this.dataSource
-      .query('SELECT "ALIVE"')
-      .then((value) => value === 'ALIVE');
+    return this.dataSource.query(`SELECT 'PONG' as PING`);
   }
 }

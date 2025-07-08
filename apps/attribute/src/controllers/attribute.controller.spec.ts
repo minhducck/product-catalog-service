@@ -28,19 +28,17 @@ describe('AttributeController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-  });
+  }, 10000);
+
+  afterAll(async () => {
+    dataSource = app.get(AttributeService);
+
+    const entity = await dataSource.getOne({ where: { code: 'test' } }, false);
+    if (entity) await dataSource.delete(entity);
+    await app.close();
+  }, 10000);
 
   describe('/attributes (POST)', () => {
-    afterAll(async () => {
-      dataSource = app.get(AttributeService);
-
-      const entity = await dataSource.getOne(
-        { where: { code: 'test' } },
-        false,
-      );
-      if (entity) await dataSource.delete(entity);
-    });
-
     it('should create a new attribute', async () => {
       const createDto = {
         isGlobal: false,

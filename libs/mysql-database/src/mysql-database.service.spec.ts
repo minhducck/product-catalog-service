@@ -22,11 +22,12 @@ describe('MysqlDatabaseService', () => {
 
   afterAll(async () => {
     await module.close();
-    console.log('Module Close Done');
   });
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
     expect(service).toBeDefined();
-    expect(service.healthCheck()).toBeTruthy();
+    const isHealthy = await service.healthCheck();
+    expect(isHealthy).toBeTruthy();
+    expect(isHealthy).toMatchObject([{ PING: 'PONG' }]);
   });
 });

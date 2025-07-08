@@ -1,6 +1,6 @@
 import { BaseModel } from '@database/mysql-database/model/base.model';
 import { AttributeDataTypeEnum } from '../types/attribute-data-type.enum';
-import { Column, Entity, OneToMany, VirtualColumn } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { AttributeOptionModel } from './attribute-option.model';
 
 @Entity({ name: 'attributes' })
@@ -70,15 +70,4 @@ export class AttributeModel extends BaseModel<AttributeModel> {
     persistence: true,
   })
   options?: AttributeOptionModel[];
-
-  @VirtualColumn({
-    type: 'bool',
-    query: () => `AttributeModel__options.uuid`,
-
-    transformer: {
-      from: Boolean,
-      to: Boolean,
-    },
-  })
-  hasOptions?: boolean;
 }
