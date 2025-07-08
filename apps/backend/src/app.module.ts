@@ -4,6 +4,7 @@ import { CommonModule } from '@common/common';
 import { AttributeModule } from '../../attribute/src/attribute.module';
 import { CategoryModule } from '../../category/src/category.module';
 import { ProductModule } from '../../product/src/product.module';
+import { CategoryAttributeIndexModule } from '../../category-attribute-index/src/category-attribute-index.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ProductModule } from '../../product/src/product.module';
     AttributeModule,
     CategoryModule,
     ProductModule,
+    CategoryAttributeIndexModule,
   ],
   controllers: [],
   providers: [],
