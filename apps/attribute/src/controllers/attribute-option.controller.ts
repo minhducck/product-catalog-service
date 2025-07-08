@@ -57,7 +57,7 @@ export class AttributeOptionController {
       },
     });
 
-    return this.optionService.getList(searchOptionQuery);
+    return this.optionService.getListAndCount(searchOptionQuery);
   }
 
   @Post()

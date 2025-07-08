@@ -19,7 +19,7 @@ import { AlreadyExistedException } from '@common/common/exception/already-existe
 export abstract class BaseService<T extends BaseModel> {
   protected repo: Repository<T>;
   private static initiateConnectionCleaner?: NodeJS.Timeout = undefined;
-  private logger: Logger;
+  protected logger: Logger;
 
   protected constructor(
     repo: Repository<T>,
@@ -69,7 +69,22 @@ export abstract class BaseService<T extends BaseModel> {
     );
   }
 
-  async getList(
+  async getList(criteria?: FindManyOptions<T>): Promise<T[]> {
+    return this.wrapToEventContainer(
+      `${this.eventPrefix}.get-list`,
+      { criteria },
+      async () => {
+        try {
+          return this.repo.find(criteria);
+        } catch (reason) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          throw this.handleErrorCodes(reason);
+        }
+      },
+    );
+  }
+
+  async getListAndCount(
     criteria?: FindManyOptions<T>,
   ): Promise<SearchQueryResult<T[]>> {
     return this.wrapToEventContainer(
@@ -119,7 +134,7 @@ export abstract class BaseService<T extends BaseModel> {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             throw this.handleErrorCodes(reason);
           }),
-      { entity },
+      { entity, entityBeforeSave: entity.getOriginData() },
     );
   }
 

@@ -37,7 +37,7 @@ export class AttributeController {
     @Query('searchQuery')
     searchQuery: string | SearchQueryInterface = getDefaultSearchCriteriaDto(),
   ) {
-    return this.attributeService.getList(
+    return this.attributeService.getListAndCount(
       parseHttpQueryToFindOption(searchQuery),
     );
   }

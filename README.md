@@ -17,6 +17,7 @@
 ## Todos
 - [ ] Support to handle Add/Delete options.
 - [ ] Assigning attribute to Category.
+- [ ] Move catalog attribute index to cron or using message queue for async processing.
 
 ## Roadmaps
 - [ ] Product entities

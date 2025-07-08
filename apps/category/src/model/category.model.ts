@@ -16,6 +16,8 @@ import {
 } from '@nestjs/swagger/dist/decorators';
 import { AttributeModel } from '../../../attribute/src/model/attribute.model';
 import { ProductModel } from '../../../product/src/model/product.model';
+import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
+import { Exclude } from 'class-transformer';
 
 @Entity({
   name: 'categories',
@@ -54,7 +56,8 @@ export class CategoryModel extends BaseModel<CategoryModel> {
     persistence: true,
   })
   @JoinTable({ name: 'category_assigned_attribute' })
-  assignedAttributes: AttributeModel[] | Promise<AttributeModel[]>;
+  @Exclude({ toPlainOnly: true })
+  assignedAttributes: AttributeModel[];
 
   @OneToMany(() => ProductModel, (product) => product.category, {
     lazy: true,
@@ -75,4 +78,14 @@ export class CategoryModel extends BaseModel<CategoryModel> {
       `SELECT COUNT(attributesUuid) FROM category_assigned_attribute WHERE category_assigned_attribute.categoriesUuid = ${alias}.uuid`,
   })
   assignedAttributeCount: number;
+
+  @OneToMany(
+    () => CategoryAttributeIndexModel,
+    (catAttrIndex) => catAttrIndex.category,
+    {
+      eager: true,
+      persistence: false,
+    },
+  )
+  attributeLinks: CategoryAttributeIndexModel[];
 }
