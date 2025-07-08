@@ -30,11 +30,6 @@ describe('AttributeController (e2e)', () => {
     await app.init();
   });
 
-  afterAll(async () => {
-    console.log('Closing Application...');
-    await app.close();
-  });
-
   describe('/attributes (POST)', () => {
     afterAll(async () => {
       dataSource = app.get(AttributeService);
