@@ -41,6 +41,18 @@ jobs:
 
       - name: Run Tests
         run: yarn run test
+        env:
+          APPLICATION_NAME: ${{ vars.APPLICATION_NAME }}
+          APP_VERSION: ${{ vars.APP_VERSION }}
+          PORT: ${{ vars.PORT }}
+          ENV: ${{ vars.ENV }}
+          REQUEST_TIMEOUT: ${{ vars.REQUEST_TIMEOUT }}
+          TZ: ${{ vars.TZ }}
+          DBHOST: ${{ secrets.DBHOST }}
+          DBPORT: ${{ secrets.DBPORT }}
+          DBUSER: ${{ secrets.DBUSER }}
+          DBPASS: ${{ secrets.DBPASS }}
+          DBNAME: ${{ secrets.DBNAME }}
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
   Build-Source-Code:
