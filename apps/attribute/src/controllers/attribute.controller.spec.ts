@@ -8,13 +8,12 @@ import { AttributeModel } from '../model/attribute.model';
 import { AttributeOptionModel } from '../model/attribute-option.model';
 import { CommonModule } from '@common/common';
 import { MysqlDatabaseModule } from '@database/mysql-database';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
-import { searchQueryWithCodeNameSpec } from './specs/search-query-with-code-name.spec';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { searchQueryWithCodeName } from './test/search-query-with-code-name';
 
 describe('AttributeController (e2e)', () => {
   let app: INestApplication;
   let dataSource: AttributeService;
-  const attributeRepository = getRepositoryToken(AttributeModel);
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -36,7 +35,7 @@ describe('AttributeController (e2e)', () => {
     await app.close();
   });
 
-  describe('/attribute (POST)', () => {
+  describe('/attributes (POST)', () => {
     afterAll(async () => {
       dataSource = app.get(AttributeService);
 
@@ -116,7 +115,7 @@ describe('AttributeController (e2e)', () => {
     it('should return a list of attributes', async () => {
       const response = await request(app.getHttpServer())
         .get(
-          `/attributes/?searchQuery=${JSON.stringify(searchQueryWithCodeNameSpec)}`,
+          `/attributes/?searchQuery=${JSON.stringify(searchQueryWithCodeName)}`,
         )
         .expect(200);
 

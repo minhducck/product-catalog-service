@@ -3,7 +3,7 @@ import {
   SearchQueryInterface,
 } from '@database/mysql-database/search-query-parser';
 
-export const searchQueryWithCodeNameSpec: SearchQueryInterface = {
+export const searchQueryWithCodeName: SearchQueryInterface = {
   query: [
     {
       field: 'code',

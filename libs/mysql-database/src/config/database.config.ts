@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
 import * as path from 'node:path';
+import { LogLevel } from 'typeorm/logger/Logger';
 
 export default class DatabaseConfig implements TypeOrmOptionsFactory {
   constructor(
@@ -33,10 +34,22 @@ export default class DatabaseConfig implements TypeOrmOptionsFactory {
       entities: [baseSearch + '/**/model/*.model{.ts,.js}'],
       synchronize: true,
       poolSize: +this.configService.get('DBPOOLSIZE') || 20,
-      logging: appEnv === 'production' ? ['error', 'warn', 'migration'] : 'all',
+      logging: this.getLoggingLevel(appEnv),
       cache: true,
     };
 
     return databaseConfig;
+  }
+
+  private getLoggingLevel(appEnv: string): boolean | 'all' | LogLevel[] {
+    switch (appEnv) {
+      case 'production':
+        return ['error', 'warn', 'migration'];
+      case 'test':
+        return false;
+      case 'development':
+      default:
+        return 'all';
+    }
   }
 }
