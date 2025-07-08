@@ -2,6 +2,7 @@ import { CategoryModel } from '../model/category.model';
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 import {
   IsNotEmpty,
+  IsNumberString,
   IsOptional,
   IsString,
   MaxLength,
@@ -21,7 +22,7 @@ export class CategoryCreationDto implements Partial<CategoryModel> {
     type: 'string',
     nullable: true,
   })
-  @IsString()
+  @IsNumberString()
   @IsOptional()
   parentCategory: bigint;
 }

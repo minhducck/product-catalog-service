@@ -2,6 +2,8 @@ import { BaseModel } from '@database/mysql-database/model/base.model';
 import { AttributeDataTypeEnum } from '../types/attribute-data-type.enum';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { AttributeOptionModel } from './attribute-option.model';
+import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'attributes' })
 export class AttributeModel extends BaseModel<AttributeModel> {
@@ -70,4 +72,16 @@ export class AttributeModel extends BaseModel<AttributeModel> {
     persistence: true,
   })
   options?: AttributeOptionModel[];
+
+  @OneToMany(
+    () => CategoryAttributeIndexModel,
+    (catAttrIndex) => catAttrIndex.attribute,
+    {
+      eager: false,
+      nullable: true,
+      lazy: true,
+    },
+  )
+  @Exclude({ toPlainOnly: true })
+  associatedAttributeLinkages: AttributeOptionModel[];
 }

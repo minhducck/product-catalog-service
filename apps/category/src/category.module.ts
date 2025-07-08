@@ -6,15 +6,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryModel } from './model/category.model';
 import { MysqlDatabaseModule } from '@database/mysql-database';
 import { CommonModule } from '@common/common';
+import { CategoryAttributeIndexModule } from '../../category-attribute-index/src/category-attribute-index.module';
+import { IndexAttributeOptionLinkageListener } from './listeners/index-attribute-option-linkage.listener';
 
 @Module({
   imports: [
     CommonModule,
     MysqlDatabaseModule,
     AttributeModule,
+    CategoryAttributeIndexModule,
     TypeOrmModule.forFeature([CategoryModel]),
   ],
   controllers: [CategoryController],
-  providers: [CategoryService],
+  providers: [CategoryService, IndexAttributeOptionLinkageListener],
 })
 export class CategoryModule {}

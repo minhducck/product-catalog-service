@@ -43,14 +43,15 @@ export class CategoryController {
   @UseInterceptors(SearchQueryResponseInterceptor)
   @ApiResponse({ status: 200, type: CategoryTreeResponse })
   async getList(): Promise<SearchQueryResult<CategoryTreeType>> {
-    const [categoryList, totalCategory] = await this.categoryService.getList({
-      where: {},
-      select: { parentCategory: true, linkedProducts: true },
-      relations: ['parentCategory'],
-      relationLoadStrategy: 'join',
-      loadEagerRelations: false,
-      loadRelationIds: true,
-    });
+    const [categoryList, totalCategory] =
+      await this.categoryService.getListAndCount({
+        where: {},
+        select: { parentCategory: true, linkedProducts: true },
+        relations: ['parentCategory'],
+        relationLoadStrategy: 'join',
+        loadEagerRelations: false,
+        loadRelationIds: true,
+      });
 
     return [buildCategoryTree(categoryList), totalCategory];
   }
