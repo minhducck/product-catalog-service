@@ -51,7 +51,7 @@ export class IndexAttributeOptionLinkageListener {
     ];
 
     return keyToChecks.some(
-      (key) => !isEqual(entity[key], entityBeforeSave[key]),
+      (key) => !isEqual(entity?.[key], entityBeforeSave?.[key]),
     );
   }
 }

@@ -8,6 +8,7 @@ import { MysqlDatabaseModule } from '@database/mysql-database';
 import { CommonModule } from '@common/common';
 import { CategoryAttributeIndexModule } from '../../category-attribute-index/src/category-attribute-index.module';
 import { IndexAttributeOptionLinkageListener } from './listeners/index-attribute-option-linkage.listener';
+import { CategoryAttributesController } from './controllers/category-attributes.controller';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { IndexAttributeOptionLinkageListener } from './listeners/index-attribute
     CategoryAttributeIndexModule,
     TypeOrmModule.forFeature([CategoryModel]),
   ],
-  controllers: [CategoryController],
+  controllers: [CategoryController, CategoryAttributesController],
   providers: [CategoryService, IndexAttributeOptionLinkageListener],
 })
 export class CategoryModule {}

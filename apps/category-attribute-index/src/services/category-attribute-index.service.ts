@@ -94,7 +94,7 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
 
     const nonDirectedAttributeFromParent = carriedFromParents.filter(
       (att) =>
-        !treeNode.assignedAttributes.find(
+        !(treeNode.assignedAttributes || []).find(
           (directAttr) => directAttr.uuid === att.uuid,
         ),
     );
@@ -105,7 +105,10 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
     for (const childNode of treeNode.children || []) {
       this.treeTraversal(
         childNode,
-        [...nonDirectedAttributeFromParent, ...treeNode.assignedAttributes],
+        [
+          ...nonDirectedAttributeFromParent,
+          ...(treeNode.assignedAttributes || []),
+        ],
         appendDirectOpts,
         appendInheritedOpts,
       );

@@ -4,6 +4,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { AttributeOptionModel } from './attribute-option.model';
 import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
 import { Exclude } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 
 @Entity({ name: 'attributes' })
 export class AttributeModel extends BaseModel<AttributeModel> {
@@ -15,6 +16,7 @@ export class AttributeModel extends BaseModel<AttributeModel> {
 
     comment: 'Attribute Code',
   })
+  @ApiProperty({ description: 'Code', type: 'string' })
   code: string;
 
   @Column({
