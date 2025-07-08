@@ -1,0 +1,81 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+#org: duckonemorec
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: product-information-serverless
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'test'}
+  region: ap-southeast-1
+  deploymentMethod: direct
+  endpointType: REGIONAL
+  memorySize: 150
+  timeout: 10
+  logRetentionInDays: 60
+  architecture: arm64
+  disableRollback: false
+  apiGateway:
+    disableDefaultEndpoint: false
+
+useDotenv: true
+
+plugins:
+  - serverless-plugin-optimize
+  - serverless-dotenv-plugin
+#  - serverless-offline
+
+package:
+  individually: true
+  patterns:
+    - '!**'
+    - 'package.json'
+    - 'yarn.lock'
+    - 'node_modules/**'
+    - '!node_modules/typescript/**'
+    - '!node_modules/@types/**'
+    - '!node_modules/aws-sdk/**'
+    - '!node_modules/@swc/**'
+    - '!node_modules/@angular-devkit/**'
+    - '!node_modules/@jest/**'
+    - '!node_modules/@babel/**'
+
+functions:
+  categories:
+    handler: dist/apps/category/apps/category/src/serverless.handler
+    package:
+      patterns:
+        - 'dist/apps/category/**'
+    events:
+      - http:
+          method: ANY
+          path: /V1/categories/
+      - http:
+          method: ANY
+          path: '/V1/categories/{proxy+}'
+
+  products:
+    handler: dist/apps/product/apps/product/src/serverless.handler
+    package:
+      patterns:
+        - 'dist/apps/product/**'
+    events:
+      - http:
+          method: ANY
+          path: /V1/products/
+      - http:
+          method: ANY
+          path: '/V1/products/{proxy+}'
+
+  attributes:
+    handler: dist/apps/attribute/apps/attribute/src/serverless.handler
+    package:
+      patterns:
+        - 'dist/apps/attribute/**'
+    events:
+      - http:
+          method: ANY
+          path: /V1/attributes/
+      - http:
+          method: ANY
+          path: '/V1/attributes/{proxy+}'

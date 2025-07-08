@@ -56,15 +56,6 @@
         "tsConfigPath": "libs/mysql-database/tsconfig.lib.json"
       }
     },
-    "performance-fixtures": {
-      "type": "application",
-      "root": "apps/performance-fixtures",
-      "entryFile": "main",
-      "sourceRoot": "apps/performance-fixtures/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/performance-fixtures/tsconfig.app.json"
-      }
-    },
     "product": {
       "type": "application",
       "root": "apps/product",
@@ -72,6 +63,36 @@
       "sourceRoot": "apps/product/src",
       "compilerOptions": {
         "tsConfigPath": "apps/product/tsconfig.app.json"
+      }
+    },
+
+
+    "attribute-serverless": {
+      "type": "application",
+      "root": "apps/attribute",
+      "entryFile": "serverless",
+      "sourceRoot": "apps/attribute/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/attribute/tsconfig.app.json"
+      }
+    },
+
+    "product-serverless": {
+      "type": "application",
+      "root": "apps/product",
+      "entryFile": "serverless",
+      "sourceRoot": "apps/product/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/product/tsconfig.app.json"
+      }
+    },
+    "category-serverless": {
+      "type": "application",
+      "root": "apps/category",
+      "entryFile": "serverless",
+      "sourceRoot": "apps/category/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/category/tsconfig.app.json"
       }
     }
   }
