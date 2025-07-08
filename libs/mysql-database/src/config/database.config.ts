@@ -27,13 +27,13 @@ export default class DatabaseConfig implements TypeOrmOptionsFactory {
       migrationsRun: true,
       migrations: [baseSearch + '/**/migration/*.migration{.ts,.js}'],
       migrationsTableName: 'migrations',
-      retryAttempts: 5,
+      retryAttempts: 3,
       autoLoadEntities: false,
       connectTimeout: 3000,
       timezone: this.configService.get<string>('DB_TIMEZONE', '+08:00'),
       entities: [baseSearch + '/**/model/*.model{.ts,.js}'],
-      synchronize: true,
-      poolSize: +this.configService.get('DBPOOLSIZE') || 20,
+      synchronize: appEnv === 'dev',
+      poolSize: +this.configService.get('DBPOOLSIZE') || 10,
       logging: this.getLoggingLevel(appEnv),
       cache: true,
     };
@@ -47,7 +47,7 @@ export default class DatabaseConfig implements TypeOrmOptionsFactory {
         return ['error', 'warn', 'migration'];
       case 'test':
         return false;
-      case 'development':
+      case 'dev':
       default:
         return 'all';
     }

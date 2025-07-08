@@ -6,9 +6,10 @@ import { CommonModule } from '@common/common';
 
 describe('MysqlDatabaseService', () => {
   let service: MysqlDatabaseService;
+  let module: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [
         CommonModule,
         TypeOrmModule.forRootAsync({ useClass: DatabaseConfig }),
@@ -17,6 +18,11 @@ describe('MysqlDatabaseService', () => {
     }).compile();
 
     service = module.get<MysqlDatabaseService>(MysqlDatabaseService);
+  });
+
+  afterAll(async () => {
+    await module.close();
+    console.log('Module Close Done');
   });
 
   it('should be defined', () => {

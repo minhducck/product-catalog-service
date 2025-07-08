@@ -53,7 +53,7 @@ export class CategoryModel extends BaseModel<CategoryModel> {
     nullable: true,
     persistence: true,
   })
-  @JoinTable({ name: 'category_attribute_linkage' })
+  @JoinTable({ name: 'category_assigned_attribute' })
   assignedAttributes: AttributeModel[] | Promise<AttributeModel[]>;
 
   @OneToMany(() => ProductModel, (product) => product.category, {
