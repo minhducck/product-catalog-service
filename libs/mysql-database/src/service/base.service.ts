@@ -2,6 +2,7 @@ import {
   DataSource,
   EntityPropertyNotFoundError,
   FindOneOptions,
+  InsertResult,
   QueryFailedError,
   QueryRunner,
   Repository,
@@ -15,10 +16,10 @@ import { NoSuchEntityException } from '@common/common/exception/no-such-entity.e
 import { SearchQueryResult } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { omitBy } from 'lodash';
 import { AlreadyExistedException } from '@common/common/exception/already-existed.exception';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 export abstract class BaseService<T extends BaseModel> {
   protected repo: Repository<T>;
-  private static initiateConnectionCleaner?: NodeJS.Timeout = undefined;
   protected logger: Logger;
 
   protected constructor(
@@ -40,6 +41,8 @@ export abstract class BaseService<T extends BaseModel> {
       switch (reason.driverError.code) {
         case 'ER_DUP_ENTRY':
           return new AlreadyExistedException('Duplicate entry found.');
+        case 'ER_NO_DEFAULT_FOR_FIELD':
+          return new BadRequestException('Field is missing a value');
       }
     } else if (reason instanceof EntityPropertyNotFoundError) {
       return new BadRequestException(reason.message);
@@ -220,6 +223,30 @@ export abstract class BaseService<T extends BaseModel> {
       `${this.eventPrefix}.save-bulk`,
       async (queryRunner) =>
         queryRunner.manager.save(list, { reload: true, chunk: 1000 }),
+      { list },
+    );
+  }
+
+  async upsertBulk(
+    list: QueryDeepPartialEntity<T>[],
+    conflictPaths: string[] = [],
+  ): Promise<InsertResult> {
+    return this.wrapToTransactionContainer<InsertResult>(
+      `${this.eventPrefix}.upsert-bulk`,
+      async (queryRunner) =>
+        queryRunner.manager.upsert<T>(
+          this.getRepository().target,
+          list,
+          conflictPaths,
+        ),
+      { list: list },
+    );
+  }
+
+  async deleteBulk(list: T[]): Promise<T> {
+    return this.wrapToTransactionContainer<T>(
+      `${this.eventPrefix}.delete-bulk`,
+      async (queryRunner) => queryRunner.manager.remove<T>(list),
       { list },
     );
   }

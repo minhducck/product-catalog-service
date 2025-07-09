@@ -39,6 +39,9 @@ export function parseQuery<T>(
       throw new BadRequestException('Query field was not specified');
     }
 
+    if (!OPERATOR_MAPPING[item.operation]) {
+      throw new BadRequestException('Unknown operation: ' + item.operation);
+    }
     return {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       [item.field]: OPERATOR_MAPPING[item.operation](item.value),

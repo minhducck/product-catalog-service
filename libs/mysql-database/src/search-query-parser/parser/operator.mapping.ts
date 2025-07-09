@@ -17,6 +17,7 @@ import {
 export const OPERATOR_MAPPING: {
   not: <T>(value: FindOperator<T> | T) => FindOperator<T>;
   eq: <T>(value: FindOperator<T> | T) => EqualOperator<T>;
+  neq: <T>(value: FindOperator<T> | T) => FindOperator<T>;
   lt: <T>(value: FindOperator<T> | T) => FindOperator<T>;
   lteq: <T>(value: FindOperator<T> | T) => FindOperator<T>;
   gt: <T>(value: FindOperator<T> | T) => FindOperator<T>;
@@ -33,6 +34,7 @@ export const OPERATOR_MAPPING: {
 } = {
   not: Not,
   eq: Equal,
+  neq: (value) => Not(Equal(value)),
   lt: LessThan,
   lteq: LessThanOrEqual,
   gt: MoreThan,

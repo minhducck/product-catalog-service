@@ -1,13 +1,29 @@
 import { SearchQueryResponse } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
-import { CategoryTreeType } from './category-tree.type';
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 import { CategoryModel } from '../model/category.model';
+import { PartialType } from '@nestjs/swagger';
+
+class CategoryOutput
+  extends PartialType(CategoryModel)
+  implements Partial<CategoryModel>
+{
+  @ApiProperty({
+    description: 'Parent ID',
+    type: CategoryModel,
+    default: null,
+    nullable: true,
+  })
+  parentCategory: CategoryModel;
+
+  @ApiProperty({ type: CategoryModel, isArray: true })
+  children: CategoryModel[];
+}
 
 export class CategoryTreeResponse
-  implements SearchQueryResponse<CategoryTreeType>
+  implements SearchQueryResponse<CategoryOutput[]>
 {
-  @ApiProperty({ type: CategoryModel, isArray: true })
-  searchResult: CategoryModel[];
+  @ApiProperty({ type: [CategoryOutput] })
+  searchResult: CategoryOutput[];
 
   @ApiProperty({ type: 'number' })
   totalCollectionSize: number;

@@ -81,13 +81,17 @@ export class CategoryController {
   @Put(':id')
   @ApiOperation({
     description: 'Update Category',
-    summary: 'Get category',
+    summary: 'Update the category',
   })
   update(@Param('id') id: bigint, @Body() categoryDto: CategoryUpdateDto) {
     return this.categoryService.update(id, categoryDto);
   }
 
   @Delete(':id')
+  @ApiOperation({
+    description: 'Delete Category',
+    summary: 'Delete specified category',
+  })
   async remove(@Param('id') id: bigint) {
     const entity = await this.categoryService.getById(id);
     return await this.categoryService.delete(entity);

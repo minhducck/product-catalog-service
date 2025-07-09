@@ -15,6 +15,9 @@ export class CategoryCreationDto implements Partial<CategoryModel> {
   @IsEmpty()
   uuid?: bigint;
 
+  @IsEmpty()
+  assertAlmostEqual: number;
+
   @ApiProperty({ type: 'string', description: 'Category name' })
   @IsString()
   @IsNotEmpty()

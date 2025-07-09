@@ -20,7 +20,7 @@ export class BaseModel<T = any> {
     );
   }
 
-  public static create<TEntity = object>(entity: Partial<TEntity>) {
+  public static create<TEntity extends BaseModel>(entity: Partial<TEntity>) {
     const instance = new this<TEntity>();
     Object.assign(
       instance,

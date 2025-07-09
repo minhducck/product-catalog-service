@@ -1,5 +1,6 @@
 import { BaseModel } from '@database/mysql-database/model/base.model';
 import {
+  AfterLoad,
   Column,
   Entity,
   JoinColumn,
@@ -10,10 +11,7 @@ import {
   Unique,
   VirtualColumn,
 } from 'typeorm';
-import {
-  ApiProperty,
-  ApiResponseProperty,
-} from '@nestjs/swagger/dist/decorators';
+import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 import { AttributeModel } from '../../../attribute/src/model/attribute.model';
 import { ProductModel } from '../../../product/src/model/product.model';
 import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
@@ -47,12 +45,18 @@ export class CategoryModel extends BaseModel<CategoryModel> {
   parentCategory: CategoryModel | bigint | undefined;
 
   @OneToMany(() => CategoryModel, (child) => child.parentCategory)
-  @ApiResponseProperty({ type: [CategoryModel] })
+  @ApiProperty({
+    type: CategoryModel,
+    isArray: true,
+    nullable: true,
+    default: true,
+  })
   children: CategoryModel[];
 
   @ManyToMany(() => AttributeModel, {
     cascade: true,
     nullable: true,
+    eager: true,
     persistence: true,
   })
   @JoinTable({ name: 'category_assigned_attribute' })
@@ -77,15 +81,33 @@ export class CategoryModel extends BaseModel<CategoryModel> {
     query: (alias) =>
       `SELECT COUNT(attributesUuid) FROM category_assigned_attribute WHERE category_assigned_attribute.categoriesUuid = ${alias}.uuid`,
   })
-  assignedAttributeCount: number;
+  readonly assignedAttributeCount: number;
 
   @OneToMany(
     () => CategoryAttributeIndexModel,
     (catAttrIndex) => catAttrIndex.category,
     {
-      eager: true,
+      lazy: true,
       persistence: false,
     },
   )
-  attributeLinks: CategoryAttributeIndexModel[];
+  readonly attributeLinks: CategoryAttributeIndexModel[];
+
+  @AfterLoad()
+  protected initializeDefaultValues() {
+    if (!this.assignedAttributes) {
+      this.assignedAttributes = [];
+    }
+  }
+
+  /** Ignore lazy load **/
+
+  @Exclude({ toPlainOnly: true })
+  __linkedProducts__?: ProductModel[];
+  @Exclude({ toPlainOnly: true })
+  __has_linkedProducts__?: boolean;
+  @Exclude({ toPlainOnly: true })
+  __attributeLinks__?: CategoryAttributeIndexModel[];
+  @Exclude({ toPlainOnly: true })
+  __has_attributeLinks__?: boolean;
 }

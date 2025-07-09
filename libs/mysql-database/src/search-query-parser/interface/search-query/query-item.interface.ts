@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 
 export enum CompareOperator {
   EQ = 'eq',
+  NEQ = 'neq',
   LT = 'lt',
   LTEQ = 'lteq',
   GT = 'gt',
