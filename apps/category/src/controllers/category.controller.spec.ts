@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { CommonModule } from '@common/common';
 import { MysqlDatabaseModule } from '@database/mysql-database';
@@ -33,6 +33,7 @@ describe('CategoryController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
     attributeService = app.get(AttributeService);
@@ -67,6 +68,17 @@ describe('CategoryController (e2e)', () => {
 
     it('should return a bad request due to missing field', async () => {
       const createDto = {};
+
+      await request(app.getHttpServer())
+        .post('/categories')
+        .send(createDto)
+        .expect(400);
+    });
+
+    it('should return a bad request due to uuid present in the payload', async () => {
+      const createDto = {
+        uuid: '12312231',
+      };
 
       await request(app.getHttpServer())
         .post('/categories')

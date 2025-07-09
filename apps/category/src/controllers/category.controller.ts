@@ -16,7 +16,7 @@ import {
 } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { CategoryTreeType } from '../types/category-tree.type';
 import { buildCategoryTree } from '../helper/build-category-tree';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CategoryTreeResponse } from '../types/category-tree-response';
 import { CategoryCreationDto } from '../types/category-creation.dto';
 import { NoSuchEntityException } from '@common/common/exception/no-such-entity.exception';
@@ -27,6 +27,10 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
+  @ApiOperation({
+    description: 'Create new category',
+    summary: 'Create category',
+  })
   async create(@Body() categoryDto: CategoryCreationDto) {
     if (
       categoryDto.parentCategory &&
@@ -40,6 +44,10 @@ export class CategoryController {
   }
 
   @Get()
+  @ApiOperation({
+    description: 'Get the list of all categories as tree structure',
+    summary: 'Get category tree',
+  })
   @UseInterceptors(SearchQueryResponseInterceptor)
   @ApiResponse({ status: 200, type: CategoryTreeResponse })
   async getList(): Promise<SearchQueryResult<CategoryTreeType>> {
@@ -62,11 +70,19 @@ export class CategoryController {
     description: 'The found record',
     type: CategoryModel,
   })
+  @ApiOperation({
+    description: 'Get category by id',
+    summary: 'Get category',
+  })
   getCategory(@Param('id') id: bigint) {
     return this.categoryService.getById(id);
   }
 
   @Put(':id')
+  @ApiOperation({
+    description: 'Update Category',
+    summary: 'Get category',
+  })
   update(@Param('id') id: bigint, @Body() categoryDto: CategoryUpdateDto) {
     return this.categoryService.update(id, categoryDto);
   }

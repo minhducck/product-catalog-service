@@ -22,6 +22,7 @@
 ## Roadmaps
 - [ ] Product entities
 - [ ] Support for image type / Allow user to upload images.
+- [ ] Move the database creation to migrations instead of using `synchronize` mode. 
 
 ## Installation
 ```bash

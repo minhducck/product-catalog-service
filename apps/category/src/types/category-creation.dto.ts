@@ -1,6 +1,8 @@
+import 'reflect-metadata';
 import { CategoryModel } from '../model/category.model';
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 import {
+  IsEmpty,
   IsNotEmpty,
   IsNumberString,
   IsOptional,
@@ -10,6 +12,9 @@ import {
 } from 'class-validator';
 
 export class CategoryCreationDto implements Partial<CategoryModel> {
+  @IsEmpty()
+  uuid?: bigint;
+
   @ApiProperty({ type: 'string', description: 'Category name' })
   @IsString()
   @IsNotEmpty()
