@@ -40,7 +40,7 @@ jobs:
         run: yarn
 
       - name: Run Tests for app ${{ vars.APPLICATION_NAME }} - Version ${{ vars.APP_VERSION }}
-        run: echo "Running test for $APPLICATION_NAME - Version $APP_VERSION" && ENV=test yarn run jest
+        run: echo "Running test for $APPLICATION_NAME - Version $APP_VERSION" && ENV=test yarn run test:cov
         env:
           APPLICATION_NAME: ${{ vars.APPLICATION_NAME }}
           APP_VERSION: ${{ vars.APP_VERSION }}
