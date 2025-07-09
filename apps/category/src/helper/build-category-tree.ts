@@ -3,18 +3,29 @@ import { CategoryTreeType } from '../types/category-tree.type';
 
 export function buildCategoryTree(
   categories: CategoryModel[],
+  fromNode: CategoryModel | null = null,
 ): CategoryTreeType {
   const tree: CategoryTreeType = [];
+  let fromNodeResult: CategoryModel | null = null;
 
   for (const category of categories) {
     category.children = categories.filter(
       (cat) => cat.parentCategory === category.uuid,
     );
 
-    if (category.parentCategory === null) {
+    // Link Parents
+    category.children.forEach((child) => {
+      child.parentCategory = category;
+    });
+
+    if (fromNode?.uuid === category.uuid) {
+      fromNodeResult = category;
+    }
+
+    if (!category.parentCategory) {
       tree.push(category);
     }
   }
 
-  return tree;
+  return fromNodeResult ? [fromNodeResult] : tree;
 }

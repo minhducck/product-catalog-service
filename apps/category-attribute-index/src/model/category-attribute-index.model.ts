@@ -1,5 +1,5 @@
 import { BaseModel } from '@database/mysql-database/model/base.model';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, Unique } from 'typeorm';
 import { LinkTypeEnum } from '../types/link-type.enum';
 import { CategoryModel } from '../../../category/src/model/category.model';
 import { AttributeModel } from '../../../attribute/src/model/attribute.model';
@@ -8,6 +8,7 @@ import { AttributeModel } from '../../../attribute/src/model/attribute.model';
   name: 'categories_attributes_index',
   comment: 'Category Attribute Entity',
 })
+@Unique(['category', 'attribute'])
 export class CategoryAttributeIndexModel extends BaseModel<CategoryAttributeIndexModel> {
   @Column({ type: 'enum', nullable: false, enum: LinkTypeEnum })
   linkType: LinkTypeEnum;
@@ -20,8 +21,6 @@ export class CategoryAttributeIndexModel extends BaseModel<CategoryAttributeInde
 
   @ManyToOne(() => AttributeModel, {
     createForeignKeyConstraints: true,
-    cascade: true,
-    orphanedRowAction: 'delete',
   })
   attribute: AttributeModel;
 }

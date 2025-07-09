@@ -9,6 +9,7 @@ import { CommonModule } from '@common/common';
 import { CategoryAttributeIndexModule } from '../../category-attribute-index/src/category-attribute-index.module';
 import { IndexAttributeOptionLinkageListener } from './listeners/index-attribute-option-linkage.listener';
 import { CategoryAttributesController } from './controllers/category-attributes.controller';
+import { IndexCategoryTreeListener } from './listeners/index-category-tree.listener';
 
 @Module({
   imports: [
@@ -19,6 +20,10 @@ import { CategoryAttributesController } from './controllers/category-attributes.
     TypeOrmModule.forFeature([CategoryModel]),
   ],
   controllers: [CategoryController, CategoryAttributesController],
-  providers: [CategoryService, IndexAttributeOptionLinkageListener],
+  providers: [
+    CategoryService,
+    IndexAttributeOptionLinkageListener,
+    IndexCategoryTreeListener,
+  ],
 })
 export class CategoryModule {}

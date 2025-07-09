@@ -6,6 +6,7 @@ import { AttributeService } from '../../../attribute/src/services/attribute.serv
 import { CategoryService } from '../services/category.service';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { wrapTimeMeasure } from '@common/common/helper/wrap-time-measure';
+import { AttributeModel } from '../../../attribute/src/model/attribute.model';
 
 @Injectable()
 export class IndexAttributeOptionLinkageListener {
@@ -29,8 +30,13 @@ export class IndexAttributeOptionLinkageListener {
       await wrapTimeMeasure(
         async () => {
           return this.catalogAttributeService.indexCategoryAttributes(
-            await this.categoryService.getList(),
+            await this.categoryService.getList({
+              loadRelationIds: {
+                relations: ['parentCategory'],
+              },
+            }),
             await this.attributeService.getList(),
+            entity,
           );
         },
         'Reindex attribute option linkage',
@@ -44,14 +50,28 @@ export class IndexAttributeOptionLinkageListener {
     entity: CategoryModel,
     entityBeforeSave: CategoryModel,
   ) {
-    const keyToChecks: (keyof CategoryModel)[] = [
-      'children',
-      'parentCategory',
-      'assignedAttributes',
-    ];
+    const keyToChecks: (keyof CategoryModel)[] = ['children', 'parentCategory'];
 
+    if (
+      this.isSameElms(
+        entity?.assignedAttributes,
+        entityBeforeSave?.assignedAttributes,
+      )
+    ) {
+      return true;
+    }
     return keyToChecks.some(
       (key) => !isEqual(entity?.[key], entityBeforeSave?.[key]),
+    );
+  }
+
+  private isSameElms(
+    assignedAttributes: AttributeModel[] = [],
+    assignedAttributes2: AttributeModel[] = [],
+  ) {
+    return isEqual(
+      assignedAttributes.map((attr) => attr.uuid),
+      assignedAttributes2.map((attr) => attr.uuid),
     );
   }
 }

@@ -58,7 +58,7 @@ export class CategoryController {
         relations: ['parentCategory'],
         relationLoadStrategy: 'join',
         loadEagerRelations: false,
-        loadRelationIds: true,
+        loadRelationIds: { relations: ['parentCategory'] },
       });
 
     return [buildCategoryTree(categoryList), totalCategory];

@@ -4,10 +4,11 @@ import { AttributeModel } from '../../../attribute/src/model/attribute.model';
 import { buildCategoryTree } from '../../../category/src/helper/build-category-tree';
 import { CategoryAttributeIndexModel } from '../model/category-attribute-index.model';
 import { BaseService } from '@database/mysql-database/service/base.service';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { LinkTypeEnum } from '../types/link-type.enum';
+import { uniqBy } from 'lodash';
 
 type AssignNodeAttributeFn = (
   node: CategoryModel,
@@ -27,21 +28,25 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
     super(repo, dataSource, eventEmitter, idFieldName, eventPrefix);
   }
 
-  indexCategoryAttributes(
+  async indexCategoryAttributes(
     categoryList: CategoryModel[],
     attributeList: AttributeModel[],
+    fromNode: CategoryModel | null = null,
   ) {
-    const globalAttributes = new Map<bigint, AttributeModel>(
-      attributeList.map((attr) => [attr.uuid, attr]),
+    const globalAttributes = attributeList.filter(
+      (attr) => attr.associatedCategoryCount == 0,
     );
+    const graph = buildCategoryTree(categoryList, fromNode);
+    const tempRootCategory = CategoryModel.create<CategoryModel>({
+      children: graph,
+    });
+    const initialInheritedAttributes: AttributeModel[] =
+      this.getInheritedAttributesFromParent(fromNode);
 
-    const graph = buildCategoryTree(categoryList);
-    const tempRootCategory = new CategoryModel({ children: graph });
     const inheritedAttributes: CategoryAttributeIndexModel[] = [];
     const directedAttributes: CategoryAttributeIndexModel[] = [];
 
     const assignDirectNodes: AssignNodeAttributeFn = (node, attributes) => {
-      globalAttributes.delete(node.uuid);
       this.assignNodeFunctionBuilder(directedAttributes, LinkTypeEnum.DIRECT)(
         node,
         attributes,
@@ -56,26 +61,42 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
 
     this.treeTraversal(
       tempRootCategory,
-      [],
+      initialInheritedAttributes,
       assignDirectNodes,
       assignInheritedNodes,
     );
-
-    const globalAttributesList = Array.from(globalAttributes.values()).map(
-      (attr) =>
-        new CategoryAttributeIndexModel({
+    const globalAttributesList = globalAttributes
+      .map((attr) =>
+        CategoryAttributeIndexModel.create<CategoryAttributeIndexModel>({
           attribute: attr,
-          category: null,
           linkType: LinkTypeEnum.GLOBAL,
         }),
-    );
+      )
+      .flatMap((links) => links);
 
-    this.logger.log('Saving indexed data for direct links to database ...');
-    return Promise.all([
-      this.saveBulk(directedAttributes),
-      this.saveBulk(inheritedAttributes),
-      this.saveBulk(globalAttributesList),
-    ]);
+    this.logger.log('Saving indexed data for direct links to database...');
+    this.logger.log('Directed Links: ' + directedAttributes.length);
+    this.logger.log('Inherit Links: ' + inheritedAttributes.length);
+    this.logger.log('Global Links: ' + globalAttributesList.length);
+
+    //...globalAttributesList
+    const deleteLinks = globalAttributes.map(({ uuid }) => uuid);
+    const updateLinks = [
+      ...directedAttributes,
+      ...inheritedAttributes,
+      ...globalAttributesList,
+    ];
+
+    return this.wrapToTransactionContainer(
+      'save_category_attribute_index_data',
+      async () => {
+        await this.getRepository().delete({
+          attribute: { uuid: In(deleteLinks) },
+        });
+        await this.upsertBulk(updateLinks, ['linkType']);
+      },
+      { deleteLinks, updateLinks },
+    );
   }
 
   treeTraversal(
@@ -102,13 +123,18 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
       appendInheritedOpts(treeNode, nonDirectedAttributeFromParent);
     }
 
+    const attributeToPassToChild = uniqBy(
+      [
+        ...nonDirectedAttributeFromParent,
+        ...(treeNode.assignedAttributes || []),
+      ],
+      'uuid',
+    );
+
     for (const childNode of treeNode.children || []) {
       this.treeTraversal(
         childNode,
-        [
-          ...nonDirectedAttributeFromParent,
-          ...(treeNode.assignedAttributes || []),
-        ],
+        attributeToPassToChild,
         appendDirectOpts,
         appendInheritedOpts,
       );
@@ -121,15 +147,27 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
   ): AssignNodeAttributeFn {
     return (node: CategoryModel, attributes: AttributeModel[] = []) => {
       linkages.push(
-        ...attributes.map(
-          (attribute) =>
-            new CategoryAttributeIndexModel({
-              attribute,
-              category: node,
-              linkType,
-            }),
+        ...attributes.map((attribute) =>
+          CategoryAttributeIndexModel.create<CategoryAttributeIndexModel>({
+            attribute,
+            category: node,
+            linkType,
+          }),
         ),
       );
     };
+  }
+
+  private getInheritedAttributesFromParent(fromNode: CategoryModel | null) {
+    if (fromNode === null) return [];
+    const inheritedFromParent: AttributeModel[] = [];
+
+    // Travel upward.
+    let treeNode: CategoryModel = fromNode;
+    while (treeNode) {
+      inheritedFromParent.push(...(treeNode.assignedAttributes || []));
+      treeNode = treeNode.parentCategory as CategoryModel;
+    }
+    return [];
   }
 }

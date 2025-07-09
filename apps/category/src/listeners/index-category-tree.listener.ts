@@ -1,63 +1,53 @@
 import { OnEvent } from '@nestjs/event-emitter';
 import { CategoryModel } from '../model/category.model';
-import { isEqual } from 'lodash';
-import { CategoryAttributeIndexService } from '../../../category-attribute-index/src/services/category-attribute-index.service';
-import { AttributeService } from '../../../attribute/src/services/attribute.service';
 import { CategoryService } from '../services/category.service';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { wrapTimeMeasure } from '@common/common/helper/wrap-time-measure';
+import { Injectable, Logger } from '@nestjs/common';
+import { buildCategoryTree } from '../helper/build-category-tree';
 
 @Injectable()
-export class IndexAttributeOptionLinkageListener {
+export class IndexCategoryTreeListener {
   private readonly logger = new Logger(this.constructor.name);
-  constructor(
-    @Inject(CategoryAttributeIndexService)
-    private readonly catalogAttributeService: CategoryAttributeIndexService,
-    private readonly categoryService: CategoryService,
-    private readonly attributeService: AttributeService,
-  ) {}
+  private sharedLock = false;
+  constructor(private readonly categoryService: CategoryService) {}
   @OnEvent('category-service.save.commit.after')
-  async execute({
-    entity,
-    entityBeforeSave,
-  }: {
-    entity: CategoryModel;
-    entityBeforeSave: CategoryModel;
-  }) {
-    if (this.shouldReindexAttributeOptionLinkage(entity, entityBeforeSave)) {
-      this.logger.log('Reindex attribute option linkage');
-      await wrapTimeMeasure(
-        async () => {
-          return this.catalogAttributeService.indexCategoryAttributes(
-            await this.categoryService.getList({
-              loadRelationIds: {
-                relations: ['parentCategory'],
-              },
-            }),
-            await this.attributeService.getList(),
-            entity,
-          );
+  async execute() {
+    if (this.sharedLock) return;
+
+    await this.wrapInToLockWrapper(async () => {
+      this.logger.log('Reindex category tree');
+      this.sharedLock = true;
+
+      const catNodes = await this.categoryService.getList({
+        loadRelationIds: {
+          relations: ['parentCategory'],
         },
-        'Reindex attribute option linkage',
-        this.logger,
-      );
-      this.logger.log('Reindex attribute option linkage done');
-    }
+      });
+      const tree = buildCategoryTree(catNodes);
+      const ROOT = CategoryModel.create<CategoryModel>({ children: tree });
+      let shareCounter = 0;
+
+      const indexTree = (treeNode: CategoryModel, level = 1) => {
+        if (!treeNode) return;
+
+        treeNode.level = level;
+        treeNode.left = shareCounter++;
+
+        for (const child of treeNode.children) {
+          indexTree(child, level + 1);
+        }
+        treeNode.right = shareCounter++;
+      };
+
+      indexTree(ROOT);
+      await this.categoryService.saveBulk(catNodes);
+      this.logger.log('Reindex category tree done');
+    });
   }
 
-  private shouldReindexAttributeOptionLinkage(
-    entity: CategoryModel,
-    entityBeforeSave: CategoryModel,
-  ) {
-    const keyToChecks: (keyof CategoryModel)[] = [
-      'children',
-      'parentCategory',
-      'assignedAttributes',
-    ];
-    return true;
-
-    return keyToChecks.some(
-      (key) => !isEqual(entity?.[key], entityBeforeSave?.[key]),
-    );
+  async wrapInToLockWrapper(fn: () => Promise<void>) {
+    this.sharedLock = true;
+    return fn().finally(() => {
+      this.sharedLock = false;
+    });
   }
 }

@@ -15,7 +15,7 @@ import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 import { AttributeModel } from '../../../attribute/src/model/attribute.model';
 import { ProductModel } from '../../../product/src/model/product.model';
 import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 
 @Entity({
   name: 'categories',
@@ -42,6 +42,9 @@ export class CategoryModel extends BaseModel<CategoryModel> {
   })
   @JoinColumn({ name: 'parentId', referencedColumnName: 'uuid' })
   @ApiProperty({ description: 'Parent ID', type: 'string', nullable: true })
+  @Transform(({ value }) => (value ? (value as CategoryModel).uuid : null), {
+    toPlainOnly: true,
+  })
   parentCategory: CategoryModel | bigint | undefined;
 
   @OneToMany(() => CategoryModel, (child) => child.parentCategory)
@@ -52,6 +55,18 @@ export class CategoryModel extends BaseModel<CategoryModel> {
     default: true,
   })
   children: CategoryModel[];
+
+  @Column({ type: 'int', nullable: true })
+  @Exclude({ toPlainOnly: true })
+  left: number;
+
+  @Column({ type: 'int', nullable: true })
+  @Exclude({ toPlainOnly: true })
+  right: number;
+
+  @Column({ type: 'int', nullable: true })
+  @Exclude({ toPlainOnly: true })
+  level: number;
 
   @ManyToMany(() => AttributeModel, {
     cascade: true,

@@ -1,10 +1,10 @@
 import { BaseModel } from '@database/mysql-database/model/base.model';
 import { AttributeDataTypeEnum } from '../types/attribute-data-type.enum';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, VirtualColumn } from 'typeorm';
 import { AttributeOptionModel } from './attribute-option.model';
 import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
-import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
+import { Transform } from 'class-transformer';
 
 @Entity({ name: 'attributes' })
 export class AttributeModel extends BaseModel<AttributeModel> {
@@ -81,9 +81,22 @@ export class AttributeModel extends BaseModel<AttributeModel> {
     {
       eager: false,
       nullable: true,
-      lazy: true,
+      lazy: false,
     },
   )
-  @Exclude({ toPlainOnly: true })
-  associatedAttributeLinkages: AttributeOptionModel[];
+  @Transform(
+    ({ value }) =>
+      (value as CategoryAttributeIndexModel[] | undefined)?.[0] || [],
+    { toClassOnly: true },
+  )
+  associatedAttributeLinkages: CategoryAttributeIndexModel[];
+
+  @VirtualColumn({
+    type: 'int',
+    query: (alias) =>
+      `SELECT COUNT(categoriesUuid) FROM category_assigned_attribute WHERE category_assigned_attribute.attributesUuid = ${alias}.uuid`,
+  })
+  @Transform(({ value }) => +value)
+  @ApiProperty({ description: 'Associated Category Count', type: 'number' })
+  associatedCategoryCount: number;
 }
