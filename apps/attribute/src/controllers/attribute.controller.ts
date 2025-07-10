@@ -16,15 +16,12 @@ import { parseHttpQueryToFindOption } from '@database/mysql-database/search-quer
 import { SearchQueryResponseInterceptor } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { AttributeCreationDto } from '../types/attribute-creation.dto';
 import { AttributeModel } from '../model/attribute.model';
-import { AttributeOptionService } from '../services/attribute-option.service';
 import { SearchQueryInterface } from '@database/mysql-database/search-query-parser';
+import { isString } from 'lodash';
 
 @Controller('attributes')
 export class AttributeController {
-  constructor(
-    private readonly attributeService: AttributeService,
-    private readonly optionService: AttributeOptionService,
-  ) {}
+  constructor(private readonly attributeService: AttributeService) {}
 
   @Get()
   @ApiQuery({
@@ -32,13 +29,35 @@ export class AttributeController {
     type: DefaultSearchCriteriaDto,
     required: false,
   })
+  @ApiQuery({
+    name: 'keyword',
+    type: String,
+    required: false,
+    description: 'Search Keywords',
+  })
+  @ApiQuery({
+    name: 'categoryIds',
+    type: [Number],
+    required: false,
+    description: 'Search Keywords',
+  })
   @UseInterceptors(SearchQueryResponseInterceptor)
   getAttributeList(
     @Query('searchQuery')
     searchQuery: string | SearchQueryInterface = getDefaultSearchCriteriaDto(),
+    @Query('keyword') keyword: string = '',
+    @Query('categoryIds') boundedCategoriesIds: bigint[] = [],
   ) {
-    return this.attributeService.getListAndCount(
-      parseHttpQueryToFindOption(searchQuery),
+    /* @Todo: Implement Category Filter and Keyword filter*/
+
+    console.log(keyword);
+    const searchQueryObj = isString(searchQuery)
+      ? (JSON.parse(searchQuery) as SearchQueryInterface)
+      : searchQuery;
+
+    return this.attributeService.getListAndCountOnCategories(
+      boundedCategoriesIds,
+      parseHttpQueryToFindOption(searchQueryObj),
     );
   }
 

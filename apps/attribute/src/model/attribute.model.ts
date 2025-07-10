@@ -4,7 +4,7 @@ import { Column, Entity, OneToMany, VirtualColumn } from 'typeorm';
 import { AttributeOptionModel } from './attribute-option.model';
 import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
-import { Transform } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 
 @Entity({ name: 'attributes' })
 export class AttributeModel extends BaseModel<AttributeModel> {
@@ -28,20 +28,20 @@ export class AttributeModel extends BaseModel<AttributeModel> {
   name: string;
 
   @Column({
+    type: 'boolean',
+    nullable: false,
+    default: false,
+    comment: 'Attribute Status',
+  })
+  status: boolean;
+
+  @Column({
     type: 'enum',
     enum: AttributeDataTypeEnum,
     nullable: false,
     comment: 'Attribute Data Type',
   })
   dataType: AttributeDataTypeEnum;
-
-  @Column({
-    type: 'bool',
-    default: false,
-    nullable: false,
-    comment: 'Is Global Attribute',
-  })
-  isGlobal: boolean;
 
   @Column({
     type: 'bool',
@@ -55,24 +55,17 @@ export class AttributeModel extends BaseModel<AttributeModel> {
     type: 'bool',
     default: false,
     nullable: false,
-    comment: 'Is Inherited Allowed Attribute',
-  })
-  isInheritedAllowed: boolean;
-
-  @Column({
-    type: 'bool',
-    default: false,
-    nullable: false,
     comment: 'Is Value Required',
   })
   isValueRequired: boolean;
 
   @OneToMany(() => AttributeOptionModel, (option) => option.attribute, {
-    eager: true,
+    eager: false,
     nullable: true,
-    cascade: true,
+    cascade: false,
     persistence: true,
   })
+  @Exclude({ toPlainOnly: true })
   options?: AttributeOptionModel[];
 
   @OneToMany(
@@ -83,11 +76,6 @@ export class AttributeModel extends BaseModel<AttributeModel> {
       nullable: true,
       lazy: false,
     },
-  )
-  @Transform(
-    ({ value }) =>
-      (value as CategoryAttributeIndexModel[] | undefined)?.[0] || [],
-    { toClassOnly: true },
   )
   associatedAttributeLinkages: CategoryAttributeIndexModel[];
 

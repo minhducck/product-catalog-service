@@ -19,6 +19,7 @@ export class AttributeOptionModel extends BaseModel<AttributeOptionModel> {
     onDelete: 'CASCADE',
     orphanedRowAction: 'delete',
     createForeignKeyConstraints: true,
+    cascade: true,
   })
   @Exclude({ toPlainOnly: true })
   attribute?: AttributeModel;

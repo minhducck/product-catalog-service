@@ -1,4 +1,3 @@
-import { merge } from 'lodash';
 import {
   QueryItemInterface,
   SearchPaginationInterface,
@@ -10,8 +9,6 @@ import { parseQuery } from './parser/parse-query';
 import { FindOptionsOrder } from 'typeorm/find-options/FindOptionsOrder';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { isArray } from 'class-validator';
-import { And } from 'typeorm';
-import { createNestedObjectFromString } from './parser/create-nested-object-from.string';
 import { BadRequestException } from '@nestjs/common';
 
 export const DEFAULT_SEARCH_PAGE_SIZE = 100;
@@ -31,45 +28,17 @@ export function prepareSortOrder<T>(
   );
 }
 
-function parseSubQuery<T>(
-  subQuery: QueryItemInterface | QueryItemInterface[],
-): object {
-  if (isArray(subQuery)) {
-    return subQuery.reduce((prev, current) => {
-      if (!current.field) {
-        throw new BadRequestException('SubQuery field was not specified');
-      }
-      if (prev[current.field]) {
-        prev[current.field] = And(
-          prev[current.field],
-          parseQuery(current)[current.field],
-        );
-        return prev;
-      }
-      return merge(prev, parseQuery(current));
-    }, {});
-  }
-
-  return subQuery ? parseQuery<T>(subQuery) : {};
-}
-
 function prepareQueryCondition<T>(
-  query: QueryItemInterface | QueryItemInterface[] | undefined,
+  query:
+    | QueryItemInterface
+    | QueryItemInterface[]
+    | QueryItemInterface[][]
+    | undefined,
 ) {
   if (typeof query === 'undefined') {
     return {};
   }
-
-  if (isArray(query) && isArray(query?.[0])) {
-    // Or query
-    const result: object[] = [];
-    query.forEach((subQuery) => {
-      result.push(parseSubQuery(subQuery));
-    });
-    return result;
-  }
-
-  return parseSubQuery<T>(query);
+  return parseQuery(query);
 }
 
 export function preparePagination(pagination?: SearchPaginationInterface) {
@@ -97,28 +66,6 @@ export function parseHttpQueryToFindOption<T>(
   const where: FindOptionsWhere<T>[] | FindOptionsWhere<T> =
     prepareQueryCondition<T>(searchQuery?.query);
 
-  let nestedObject: object | object[] = {};
-  if (isArray(where)) {
-    nestedObject = [];
-    for (let i = 0; i < where.length; i++) {
-      nestedObject[i] = {};
-      for (const fieldName of Object.keys(where[i])) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        nestedObject[i] = merge(
-          nestedObject[i],
-          createNestedObjectFromString(fieldName, where[i][fieldName]),
-        );
-      }
-    }
-  } else {
-    for (const fieldName of Object.keys(where)) {
-      nestedObject = merge(
-        nestedObject,
-        createNestedObjectFromString(fieldName, where[fieldName]),
-      );
-    }
-  }
-
   const order: FindOptionsOrder<T> = searchQuery?.sortOrder
     ? prepareSortOrder(searchQuery.sortOrder)
     : {};
@@ -127,7 +74,7 @@ export function parseHttpQueryToFindOption<T>(
   );
 
   return {
-    where: nestedObject,
+    where,
     take: pagination.take,
     skip: pagination.skip,
     order,

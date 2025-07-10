@@ -5,4 +5,6 @@ export enum AttributeDataTypeEnum {
   LONG_TEXT = 'LONG_TEXT',
   INTEGER = 'INTEGER',
   FLOAT = 'FLOAT',
+  DROPDOWN = 'DROPDOWN',
+  MULTISELECT = 'MULTISELECT',
 }

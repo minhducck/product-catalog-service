@@ -1,6 +1,7 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger/dist/decorators';
 import {
   QueryItem,
+  QueryType,
   SearchPagination,
   SearchQueryInterface,
   SearchSortOrder,
@@ -35,5 +36,5 @@ export class DefaultSearchCriteriaDto implements SearchQueryInterface {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsInstance(QueryItem)
-  query?: QueryItem;
+  query?: QueryType;
 }

@@ -1,3 +1,5 @@
+import { isArray, merge } from 'lodash';
+
 /**
  * String Format: firstLevel.secondLevel.thirdLevel
  * Destination Object:
@@ -26,4 +28,21 @@ export function createNestedObjectFromString(
   return {
     [parentName]: createNestedObjectFromString(nameElement.join('.'), value),
   };
+}
+export function createNestedObject(
+  data: object[] | object,
+): Record<string, any> {
+  if (isArray(data)) {
+    return data.map((item: object) => createNestedObject(item));
+  } else {
+    let localObj = {};
+    for (const fieldName of Object.keys(data)) {
+      localObj = merge(
+        localObj,
+        createNestedObjectFromString(fieldName, data[fieldName]),
+      );
+    }
+
+    return localObj;
+  }
 }

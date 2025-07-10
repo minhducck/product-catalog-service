@@ -19,9 +19,17 @@ export enum CompareOperator {
 }
 export interface QueryItemInterface {
   field?: string;
-  value: any;
+  value:
+    | QueryItemInterface
+    | QueryItemInterface[]
+    | string
+    | number
+    | bigint
+    | boolean
+    | null
+    | undefined;
 
-  operation: CompareOperator;
+  operation?: CompareOperator;
 }
 
 export class QueryItem implements QueryItemInterface {
