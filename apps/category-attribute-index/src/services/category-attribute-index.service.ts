@@ -34,7 +34,7 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
     fromNode: CategoryModel | null = null,
   ) {
     const globalAttributes = attributeList.filter(
-      (attr) => attr.associatedCategoryCount == 0,
+      (attr) => attr.associatedCategoryCount == 0 && attr.status,
     );
     const graph = buildCategoryTree(categoryList, fromNode);
     const tempRootCategory = CategoryModel.create<CategoryModel>({

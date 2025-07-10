@@ -3,6 +3,7 @@ import {
   AfterLoad,
   Column,
   Entity,
+  Index,
   JoinColumn,
   JoinTable,
   ManyToMany,
@@ -30,6 +31,7 @@ export class CategoryModel extends BaseModel<CategoryModel> {
     comment: 'Category Name',
   })
   @ApiProperty({ description: 'Name', type: 'string' })
+  @Index({ fulltext: true })
   name: string;
 
   @ManyToOne(() => CategoryModel, {
@@ -69,7 +71,7 @@ export class CategoryModel extends BaseModel<CategoryModel> {
   level: number;
 
   @ManyToMany(() => AttributeModel, {
-    cascade: true,
+    cascade: false,
     nullable: true,
     eager: true,
     persistence: true,

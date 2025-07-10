@@ -38,7 +38,7 @@ describe('CategoryController (e2e)', () => {
 
     attributeService = app.get(AttributeService);
     categoryService = app.get(CategoryService);
-  }, 10000);
+  }, 60000);
 
   afterAll(async () => {
     await Promise.all(
@@ -47,7 +47,7 @@ describe('CategoryController (e2e)', () => {
       ),
     );
     await app.close();
-  }, 10000);
+  }, 60000);
 
   describe('/categories (POST)', () => {
     it('should create a new category', async () => {

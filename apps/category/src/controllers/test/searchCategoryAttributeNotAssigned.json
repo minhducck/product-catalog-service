@@ -1,20 +1,13 @@
 {
   "query": [
-    [{
-      "field": "code",
-      "value": "attribute_2",
-      "operation": "eq"
+    {
+      "field": "associatedAttributeLinkages.uuid",
+      "operation": "notnull"
     },
     {
-      "field":"associatedAttributeLinkages.linkType",
-      "value": "Inherited"
-    }],
-    [
-      {
-        "field": "name",
-        "operation": "neq",
-        "value": "attribute_10"
-      }
-    ]
+      "field": "status",
+      "value": false,
+      "operation": "eq"
+    }
   ]
 }
