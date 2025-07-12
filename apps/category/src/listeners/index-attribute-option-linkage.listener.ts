@@ -18,13 +18,7 @@ export class IndexAttributeOptionLinkageListener {
     private readonly attributeService: AttributeService,
   ) {}
   @OnEvent('category-service.save.commit.after')
-  async execute({
-    entity,
-    entityBeforeSave,
-  }: {
-    entity: CategoryModel;
-    entityBeforeSave: CategoryModel;
-  }) {
+  async execute() {
     this.logger.log('Reindex attribute option linkage');
     await wrapTimeMeasure(
       async () => {

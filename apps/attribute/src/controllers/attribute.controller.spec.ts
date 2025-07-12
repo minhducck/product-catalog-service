@@ -9,7 +9,6 @@ import { AttributeOptionModel } from '../model/attribute-option.model';
 import { CommonModule } from '@common/common';
 import { MysqlDatabaseModule } from '@database/mysql-database';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { searchQueryWithCodeName } from './test/search-query-with-code-name';
 
 describe('AttributeController (e2e)', () => {
   let app: INestApplication;
@@ -107,14 +106,16 @@ describe('AttributeController (e2e)', () => {
   describe('/attributes (GET) with searchQuery', () => {
     it('should return a list of attributes', async () => {
       const response = await request(app.getHttpServer())
-        .get(
-          `/attributes/?searchQuery=${JSON.stringify(searchQueryWithCodeName)}`,
-        )
+        .get(`/attributes/?keyword=test`)
         .expect(200);
 
       expect(response.body).toHaveProperty('searchResult');
-      expect(response.body.searchResult).toMatchObject([{ code: 'test' }]);
       expect(response.body).toHaveProperty('totalCollectionSize');
+
+      const testAttr = response.body.searchResult.find(
+        (e: AttributeModel) => e.code === 'test',
+      );
+      expect(testAttr).toMatchObject({ code: 'test' });
     });
   });
 });
