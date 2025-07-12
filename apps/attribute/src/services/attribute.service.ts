@@ -10,6 +10,7 @@ import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { isArray, isObject, merge } from 'lodash';
 import { createNestedObject } from '@database/mysql-database/search-query-parser/parser/create-nested-object-from.string';
 import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
+import { LinkTypeEnum } from '../../../category-attribute-index/src/types/link-type.enum';
 
 @Injectable()
 export class AttributeService extends BaseService<AttributeModel> {
@@ -27,6 +28,7 @@ export class AttributeService extends BaseService<AttributeModel> {
   async getListAndCountOnCategories(
     categoryIds: bigint[] = [],
     keyword: string = '',
+    linkTypes: LinkTypeEnum[] = [],
     criteria: FindManyOptions<AttributeModel> = {},
     supportedKeywordFields = ['name', 'code'],
   ): Promise<SearchQueryResult<AttributeModel[]>> {
@@ -47,29 +49,26 @@ export class AttributeService extends BaseService<AttributeModel> {
     const criteriaWithCategoryIds: FindManyOptions<AttributeModel> = {
       ...(criteria || {}),
       loadEagerRelations: false,
-      select: {
-        associatedAttributeLinkages: {
-          linkType: true,
-          category: { uuid: true, name: true },
-        },
-      },
     };
 
-    queryBuilder.setFindOptions(criteriaWithCategoryIds);
     if (categoryIds.length) {
-      queryBuilder.leftJoinAndMapMany(
+      queryBuilder.innerJoinAndMapMany(
         'AttributeModel.associatedAttributeLinkages',
         CategoryAttributeIndexModel,
         'associatedAttributeLinkages',
-        'associatedAttributeLinkages.attributeUuid = AttributeModel.uuid AND (associatedAttributeLinkages.categoryUuid IN (:categoryIds) OR associatedAttributeLinkages.categoryUuid IS NULL)',
-        { categoryIds },
+        `associatedAttributeLinkages.attributeUuid = AttributeModel.uuid AND (associatedAttributeLinkages.categoryUuid IN (:categoryIds) OR associatedAttributeLinkages.linkType = :linkType)`,
+        { categoryIds, linkType: LinkTypeEnum.GLOBAL },
       );
       queryBuilder.addSelect('associatedAttributeLinkages.category.uuid');
-      queryBuilder.andWhere(
-        'associatedAttributeLinkages.categoryUuid IN (:categoryIds)',
-      );
+      if (linkTypes.length) {
+        queryBuilder.andWhere(
+          `associatedAttributeLinkages.linkType IN (:linkTypes)`,
+          { linkTypes },
+        );
+      }
     }
 
+    queryBuilder.setFindOptions(criteriaWithCategoryIds);
     return queryBuilder.getManyAndCount();
   }
 

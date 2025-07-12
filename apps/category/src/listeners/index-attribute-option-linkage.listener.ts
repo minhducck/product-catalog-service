@@ -25,24 +25,22 @@ export class IndexAttributeOptionLinkageListener {
     entity: CategoryModel;
     entityBeforeSave: CategoryModel;
   }) {
-    if (this.shouldReindexAttributeOptionLinkage(entity, entityBeforeSave)) {
-      this.logger.log('Reindex attribute option linkage');
-      await wrapTimeMeasure(
-        async () => {
-          return this.catalogAttributeService.indexCategoryAttributes(
-            await this.categoryService.getList({
-              loadRelationIds: {
-                relations: ['parentCategory'],
-              },
-            }),
-            await this.attributeService.getList(),
-          );
-        },
-        'Reindex attribute option linkage',
-        this.logger,
-      );
-      this.logger.log('Reindex attribute option linkage done');
-    }
+    this.logger.log('Reindex attribute option linkage');
+    await wrapTimeMeasure(
+      async () => {
+        return this.catalogAttributeService.indexCategoryAttributes(
+          await this.categoryService.getList({
+            loadRelationIds: {
+              relations: ['parentCategory', 'assignedAttributes'],
+            },
+          }),
+          await this.attributeService.getList(),
+        );
+      },
+      'Reindex attribute option linkage',
+      this.logger,
+    );
+    this.logger.log('Reindex attribute option linkage done');
   }
 
   private shouldReindexAttributeOptionLinkage(

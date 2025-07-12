@@ -18,6 +18,7 @@ import { SearchQueryInterface } from '@database/mysql-database/search-query-pars
 import { parseHttpQueryToFindOption } from '@database/mysql-database/search-query-parser/parser';
 import { SearchQueryResponseInterceptor } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { SafeTransformSearchQueryPipe } from '@database/mysql-database/search-query-parser/pipes/safe-transform-search-query.pipe';
+import { LinkTypeEnum } from '../../../category-attribute-index/src/types/link-type.enum';
 
 @Controller('categories/:id/attributes')
 export class CategoryAttributesController {
@@ -37,6 +38,7 @@ export class CategoryAttributesController {
   async getCategoryAttributes(
     @Param('id') categoryId: bigint,
     @Query('keyword') keyword: string = '',
+    @Query('linkTypes') linkTypes: LinkTypeEnum[] = [],
     @Query('searchQuery', SafeTransformSearchQueryPipe)
     searchQuery: SearchQueryInterface,
   ) {
@@ -46,6 +48,7 @@ export class CategoryAttributesController {
     return this.attributeService.getListAndCountOnCategories(
       [categoryId],
       keyword,
+      linkTypes,
       criteria,
     );
   }

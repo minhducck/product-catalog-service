@@ -54,8 +54,8 @@ export class CategoryController {
     const [categoryList, totalCategory] =
       await this.categoryService.getListAndCount({
         where: {},
-        select: { parentCategory: true, linkedProducts: true },
-        relations: ['parentCategory'],
+        select: { parentCategory: true, linkedProducts: false },
+        relations: ['parentCategory', 'assignedAttributes', 'attributeLinks'],
         relationLoadStrategy: 'join',
         loadEagerRelations: false,
         loadRelationIds: { relations: ['parentCategory'] },

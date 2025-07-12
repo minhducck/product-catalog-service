@@ -8,7 +8,7 @@ import { DataSource, In, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { LinkTypeEnum } from '../types/link-type.enum';
-import { uniqBy } from 'lodash';
+import { uniq } from 'lodash';
 
 type AssignNodeAttributeFn = (
   node: CategoryModel,
@@ -90,11 +90,10 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
     return this.wrapToTransactionContainer(
       'save_category_attribute_index_data',
       async () => {
-        await this.upsertBulk(updateLinks, ['linkType']);
-
         await this.getRepository().delete({
           attribute: { uuid: In(deleteLinks) },
         });
+        await this.upsertBulk(updateLinks, ['linkType']);
       },
       { deleteLinks, updateLinks },
     );
@@ -115,22 +114,16 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
     }
 
     const nonDirectedAttributeFromParent = carriedFromParents.filter(
-      (att) =>
-        !(treeNode.assignedAttributes || []).find(
-          (directAttr) => directAttr.uuid === att.uuid,
-        ),
+      (att) => !treeNode.assignedAttributes?.includes(att),
     );
     if (nonDirectedAttributeFromParent.length > 0) {
       appendInheritedOpts(treeNode, nonDirectedAttributeFromParent);
     }
 
-    const attributeToPassToChild = uniqBy(
-      [
-        ...nonDirectedAttributeFromParent,
-        ...(treeNode.assignedAttributes || []),
-      ],
-      'uuid',
-    );
+    const attributeToPassToChild = uniq([
+      ...nonDirectedAttributeFromParent,
+      ...(treeNode.assignedAttributes || []),
+    ]);
 
     for (const childNode of treeNode.children || []) {
       this.treeTraversal(
@@ -169,6 +162,6 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
       inheritedFromParent.push(...(treeNode.assignedAttributes || []));
       treeNode = treeNode.parentCategory as CategoryModel;
     }
-    return [];
+    return inheritedFromParent;
   }
 }

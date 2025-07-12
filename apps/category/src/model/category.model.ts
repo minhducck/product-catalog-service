@@ -82,7 +82,6 @@ export class CategoryModel extends BaseModel<CategoryModel> {
     persistence: true,
   })
   @JoinTable({ name: 'category_assigned_attribute' })
-  @Exclude({ toPlainOnly: true })
   assignedAttributes: undefined | AttributeModel[];
 
   @OneToMany(() => ProductModel, (product) => product.category, {
