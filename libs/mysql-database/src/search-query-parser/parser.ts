@@ -12,6 +12,8 @@ import { isArray } from 'class-validator';
 import { BadRequestException } from '@nestjs/common';
 
 export const DEFAULT_SEARCH_PAGE_SIZE = 100;
+export const DEFAULT_SORT_FIELD = 'createdAt';
+export const DEFAULT_SORT_DIRECTION = 'DESC';
 
 export function prepareSortOrder<T>(
   order: SearchSortOrderInterface | SearchSortOrderInterface[],
@@ -51,18 +53,8 @@ export function preparePagination(pagination?: SearchPaginationInterface) {
 }
 
 export function parseHttpQueryToFindOption<T>(
-  searchQuery: string | SearchQueryInterface,
+  searchQuery: SearchQueryInterface,
 ): FindManyOptions<T> {
-  try {
-    if (typeof searchQuery === 'string') {
-      searchQuery = JSON.parse(searchQuery) as SearchQueryInterface;
-    }
-  } catch (e) {
-    throw new BadRequestException(
-      'Unable to parse search query. Please check your search query.',
-      { cause: e },
-    );
-  }
   const where: FindOptionsWhere<T>[] | FindOptionsWhere<T> =
     prepareQueryCondition<T>(searchQuery?.query);
 
@@ -80,3 +72,39 @@ export function parseHttpQueryToFindOption<T>(
     order,
   };
 }
+
+export const safeParseSearchQuery = (
+  searchQuery: string | SearchQueryInterface,
+) => {
+  try {
+    if (typeof searchQuery === 'string') {
+      return JSON.parse(searchQuery) as SearchQueryInterface;
+    }
+  } catch (e) {
+    throw new BadRequestException(
+      'Unable to parse search query. Please check your search query.',
+      { cause: e },
+    );
+  }
+};
+export const initiateSearchParamParams = (
+  query: SearchQueryInterface['query'],
+  pagination: SearchQueryInterface['pagination'],
+  sortOrder: SearchQueryInterface['sortOrder'],
+): SearchQueryInterface => {
+  return {
+    query,
+    pagination:
+      pagination ||
+      ({
+        page: 1,
+        limit: DEFAULT_SEARCH_PAGE_SIZE,
+      } as SearchPaginationInterface),
+    sortOrder:
+      sortOrder ||
+      ({
+        sortField: DEFAULT_SORT_FIELD,
+        direction: DEFAULT_SORT_DIRECTION,
+      } as SearchSortOrderInterface),
+  } as SearchQueryInterface;
+};

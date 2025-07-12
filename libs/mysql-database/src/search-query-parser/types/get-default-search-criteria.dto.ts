@@ -18,7 +18,7 @@ export const getDefaultSearchCriteriaDto = (): SearchQueryInterface =>
       limit: 10,
       page: 1,
     },
-    query: undefined,
+    query: {} as QueryItem,
   }) as SearchQueryInterface;
 
 @ApiSchema()
@@ -33,7 +33,7 @@ export class DefaultSearchCriteriaDto implements SearchQueryInterface {
   @IsInstance(SearchPagination)
   pagination?: SearchPagination;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: QueryItem, required: false })
   @IsOptional()
   @IsInstance(QueryItem)
   query?: QueryType;

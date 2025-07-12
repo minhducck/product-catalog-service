@@ -22,7 +22,7 @@ export class AttributeCreationDto implements Partial<AttributeModel> {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-  @Matches(/^[a-z-]+$/)
+  @Matches(/^[a-z-_0-9]+$/)
   code: string;
 
   @ApiProperty({ required: true, enum: AttributeDataTypeEnum })

@@ -41,12 +41,15 @@ export class QueryItem implements QueryItemInterface {
     description: 'Operation',
     enum: CompareOperator,
     default: CompareOperator.EQ,
+    examples: [...Object.keys(CompareOperator)],
   })
   operation: CompareOperator;
 
   @ApiProperty({
     required: false,
     description: 'Value',
+    type: 'string',
+    examples: ['123', '123.456', 'true', 'false', 'null'],
   })
-  value: any;
+  value: string | number | bigint | boolean | null | undefined;
 }

@@ -36,7 +36,6 @@ export class IndexAttributeOptionLinkageListener {
               },
             }),
             await this.attributeService.getList(),
-            entity,
           );
         },
         'Reindex attribute option linkage',

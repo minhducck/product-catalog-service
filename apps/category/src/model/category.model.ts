@@ -35,21 +35,26 @@ export class CategoryModel extends BaseModel<CategoryModel> {
   name: string;
 
   @ManyToOne(() => CategoryModel, {
-    createForeignKeyConstraints: true,
+    createForeignKeyConstraints: false,
     nullable: true,
     persistence: false,
-    cascade: true,
-    onDelete: 'CASCADE',
     orphanedRowAction: 'nullify',
   })
-  @JoinColumn({ name: 'parentId', referencedColumnName: 'uuid' })
+  @JoinColumn({
+    name: 'parentId',
+    referencedColumnName: 'uuid',
+    foreignKeyConstraintName: 'CATEGORY_PARENT_ID_CATEGORY_UUID',
+  })
   @ApiProperty({ description: 'Parent ID', type: 'string', nullable: true })
   @Transform(({ value }) => (value ? (value as CategoryModel).uuid : null), {
     toPlainOnly: true,
   })
   parentCategory: CategoryModel | bigint | undefined;
 
-  @OneToMany(() => CategoryModel, (child) => child.parentCategory)
+  @OneToMany(() => CategoryModel, (child) => child.parentCategory, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
   @ApiProperty({
     type: CategoryModel,
     isArray: true,

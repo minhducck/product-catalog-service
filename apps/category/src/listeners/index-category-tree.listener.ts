@@ -18,6 +18,7 @@ export class IndexCategoryTreeListener {
       this.sharedLock = true;
 
       const catNodes = await this.categoryService.getList({
+        select: { parentCategory: true, assignedAttributes: true },
         loadRelationIds: {
           relations: ['parentCategory'],
         },

@@ -1,6 +1,6 @@
 import { BaseModel } from '@database/mysql-database/model/base.model';
 import { AttributeDataTypeEnum } from '../types/attribute-data-type.enum';
-import { Column, Entity, OneToMany, VirtualColumn } from 'typeorm';
+import { Column, Entity, Index, OneToMany, VirtualColumn } from 'typeorm';
 import { AttributeOptionModel } from './attribute-option.model';
 import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
@@ -25,6 +25,7 @@ export class AttributeModel extends BaseModel<AttributeModel> {
     nullable: false,
     comment: 'Attribute Name',
   })
+  @Index({ fulltext: true })
   name: string;
 
   @Column({
@@ -68,6 +69,15 @@ export class AttributeModel extends BaseModel<AttributeModel> {
   @Exclude({ toPlainOnly: true })
   options?: AttributeOptionModel[];
 
+  @VirtualColumn({
+    type: 'int',
+    query: (alias) =>
+      `SELECT COUNT(categoriesUuid) FROM category_assigned_attribute WHERE category_assigned_attribute.attributesUuid = ${alias}.uuid`,
+  })
+  @Transform(({ value }) => +value)
+  @ApiProperty({ description: 'Associated Category Count', type: 'number' })
+  associatedCategoryCount: number;
+
   @OneToMany(
     () => CategoryAttributeIndexModel,
     (catAttrIndex) => catAttrIndex.attribute,
@@ -78,13 +88,4 @@ export class AttributeModel extends BaseModel<AttributeModel> {
     },
   )
   associatedAttributeLinkages: CategoryAttributeIndexModel[];
-
-  @VirtualColumn({
-    type: 'int',
-    query: (alias) =>
-      `SELECT COUNT(categoriesUuid) FROM category_assigned_attribute WHERE category_assigned_attribute.attributesUuid = ${alias}.uuid`,
-  })
-  @Transform(({ value }) => +value)
-  @ApiProperty({ description: 'Associated Category Count', type: 'number' })
-  associatedCategoryCount: number;
 }

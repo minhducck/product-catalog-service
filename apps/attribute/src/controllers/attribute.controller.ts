@@ -1,23 +1,22 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { AttributeService } from '../services/attribute.service';
 import { ApiBody, ApiQuery } from '@nestjs/swagger';
-import {
-  DefaultSearchCriteriaDto,
-  getDefaultSearchCriteriaDto,
-} from '@database/mysql-database/search-query-parser/types/get-default-search-criteria.dto';
+import { DefaultSearchCriteriaDto } from '@database/mysql-database/search-query-parser/types/get-default-search-criteria.dto';
 import { parseHttpQueryToFindOption } from '@database/mysql-database/search-query-parser/parser';
 import { SearchQueryResponseInterceptor } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { AttributeCreationDto } from '../types/attribute-creation.dto';
 import { AttributeModel } from '../model/attribute.model';
 import { SearchQueryInterface } from '@database/mysql-database/search-query-parser';
-import { isString } from 'lodash';
+import { SafeTransformSearchQueryPipe } from '@database/mysql-database/search-query-parser/pipes/safe-transform-search-query.pipe';
 
 @Controller('attributes')
 export class AttributeController {
@@ -37,27 +36,22 @@ export class AttributeController {
   })
   @ApiQuery({
     name: 'categoryIds',
-    type: [Number],
+    type: 'number',
+    isArray: true,
     required: false,
     description: 'Search Keywords',
   })
   @UseInterceptors(SearchQueryResponseInterceptor)
   getAttributeList(
-    @Query('searchQuery')
-    searchQuery: string | SearchQueryInterface = getDefaultSearchCriteriaDto(),
+    @Query('searchQuery', SafeTransformSearchQueryPipe)
+    searchQuery: SearchQueryInterface,
     @Query('keyword') keyword: string = '',
     @Query('categoryIds') boundedCategoriesIds: bigint[] = [],
   ) {
-    /* @Todo: Implement Category Filter and Keyword filter*/
-
-    console.log(keyword);
-    const searchQueryObj = isString(searchQuery)
-      ? (JSON.parse(searchQuery) as SearchQueryInterface)
-      : searchQuery;
-
     return this.attributeService.getListAndCountOnCategories(
       boundedCategoriesIds,
-      parseHttpQueryToFindOption(searchQueryObj),
+      keyword,
+      parseHttpQueryToFindOption(searchQuery),
     );
   }
 
@@ -65,6 +59,13 @@ export class AttributeController {
   @ApiBody({ required: true, type: AttributeCreationDto })
   create(@Body() creationDto: AttributeCreationDto) {
     const entity = AttributeModel.create<AttributeModel>(creationDto);
+
+    return this.attributeService.save(entity);
+  }
+  @Delete(':id')
+  @ApiBody({ required: true, type: AttributeCreationDto })
+  async delete(@Param('id') id: bigint) {
+    const entity = await this.attributeService.getById(id);
 
     return this.attributeService.save(entity);
   }

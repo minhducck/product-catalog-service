@@ -5,6 +5,7 @@ import {
   SwaggerModule,
 } from '@nestjs/swagger';
 import { INestApplication } from '@nestjs/common';
+import { writeFileSync } from 'fs';
 
 export function setupSwagger(app: INestApplication) {
   const configService: ConfigService = app.get(ConfigService);
@@ -32,6 +33,12 @@ export function setupSwagger(app: INestApplication) {
     ignoreGlobalPrefix: false,
     deepScanRoutes: true,
   };
+
+  const document = SwaggerModule.createDocument(app, config, options);
+  writeFileSync('./var/swagger-spec.json', JSON.stringify(document), {
+    mode: '0740',
+    flag: 'w+',
+  });
 
   SwaggerModule.setup(
     'swagger',

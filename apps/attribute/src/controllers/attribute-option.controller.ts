@@ -10,11 +10,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AttributeService } from '../services/attribute.service';
-import { ApiBody, ApiQuery } from '@nestjs/swagger';
 import {
-  DefaultSearchCriteriaDto,
-  getDefaultSearchCriteriaDto,
-} from '@database/mysql-database/search-query-parser/types/get-default-search-criteria.dto';
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { parseHttpQueryToFindOption } from '@database/mysql-database/search-query-parser/parser';
 import { SearchQueryResponseInterceptor } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
 import { AttributeOptionService } from '../services/attribute-option.service';
@@ -27,8 +29,12 @@ import {
 } from '@database/mysql-database/search-query-parser';
 import { AttributeOptionCreationDto } from '../types/attribute-option-creation.dto';
 import { AttributeOptionUpdateDto } from '../types/attribute-option-update.dto';
+import { DefaultSearchCriteriaDto } from '@database/mysql-database/search-query-parser/types/get-default-search-criteria.dto';
+import { SafeTransformSearchQueryPipe } from '@database/mysql-database/search-query-parser/pipes/safe-transform-search-query.pipe';
 
 @Controller('attributes/:attributeId/options')
+@ApiParam({ name: 'attributeId', type: String })
+@ApiTags('Manage Attribute Options')
 export class AttributeOptionController {
   constructor(
     private readonly attributeService: AttributeService,
@@ -37,16 +43,18 @@ export class AttributeOptionController {
 
   @Get()
   @UseInterceptors(SearchQueryResponseInterceptor)
-  @ApiQuery({ name: 'searchQuery', type: DefaultSearchCriteriaDto })
+  @ApiOperation({ summary: 'Get attribute options' })
+  @ApiQuery({
+    name: 'searchQuery',
+    type: DefaultSearchCriteriaDto,
+    required: false,
+  })
   getAttributeOptions(
     @Param('attributeId') attrId: bigint,
-    @Query()
-    searchQuery: SearchQueryInterface = getDefaultSearchCriteriaDto(),
+    @Query('searchQuery', SafeTransformSearchQueryPipe)
+    searchQuery: SearchQueryInterface,
   ) {
-    searchQuery.query = [
-      searchQuery.query,
-      { field: 'attribute.uuid', value: attrId },
-    ].filter(Boolean) as QueryItemInterface[];
+    this.appendAttributeIdFilter(searchQuery, attrId);
     const searchOptionQuery =
       parseHttpQueryToFindOption<AttributeOptionModel>(searchQuery);
 
@@ -61,6 +69,7 @@ export class AttributeOptionController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create attribute option' })
   @ApiBody({ required: true, type: AttributeOptionCreationDto })
   async createAttributeOption(
     @Param('attributeId') id: bigint,
@@ -76,6 +85,7 @@ export class AttributeOptionController {
   }
 
   @Put('/:optionId')
+  @ApiOperation({ summary: 'Update attribute options' })
   @ApiBody({ required: true, type: AttributeOptionUpdateDto })
   async updateOption(
     @Param('optionId') optionId: bigint,
@@ -91,5 +101,15 @@ export class AttributeOptionController {
   ): Promise<AttributeOptionModel> {
     const option = await this.optionService.getById(id);
     return this.optionService.delete(option);
+  }
+
+  private appendAttributeIdFilter(
+    searchQuery: SearchQueryInterface,
+    attrId: bigint,
+  ) {
+    searchQuery.query = [
+      searchQuery.query,
+      { field: 'attribute.uuid', value: attrId },
+    ].filter(Boolean) as QueryItemInterface[];
   }
 }

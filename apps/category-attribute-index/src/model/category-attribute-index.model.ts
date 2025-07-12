@@ -21,6 +21,8 @@ export class CategoryAttributeIndexModel extends BaseModel<CategoryAttributeInde
     eager: true,
     createForeignKeyConstraints: false,
     nullable: true,
+    cascade: true,
+    onDelete: 'CASCADE',
   })
   @Exclude({ toPlainOnly: true })
   category: CategoryModel | null;
@@ -28,6 +30,8 @@ export class CategoryAttributeIndexModel extends BaseModel<CategoryAttributeInde
   @ManyToOne(() => AttributeModel, {
     eager: false,
     createForeignKeyConstraints: true,
+    cascade: true,
+    onDelete: 'CASCADE',
   })
   attribute: AttributeModel;
 

@@ -90,10 +90,11 @@ export class CategoryAttributeIndexService extends BaseService<CategoryAttribute
     return this.wrapToTransactionContainer(
       'save_category_attribute_index_data',
       async () => {
+        await this.upsertBulk(updateLinks, ['linkType']);
+
         await this.getRepository().delete({
           attribute: { uuid: In(deleteLinks) },
         });
-        await this.upsertBulk(updateLinks, ['linkType']);
       },
       { deleteLinks, updateLinks },
     );
