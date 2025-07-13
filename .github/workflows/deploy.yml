@@ -34,6 +34,7 @@ jobs:
             dist
             node_modules
             package.json
+            yarn.lock
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
@@ -45,6 +46,9 @@ jobs:
     steps:
       - name: Download a coverage artifact
         uses: actions/download-artifact@v4
+        with:
+          name: 'production-artifact'
+
       - name: Get .env from config
         env:
           EnvContent: ${{ secrets.DEPLOY_DOT_ENV }}
