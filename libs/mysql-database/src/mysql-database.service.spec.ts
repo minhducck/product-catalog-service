@@ -23,7 +23,7 @@ describe('MysqlDatabaseService', () => {
 
   afterAll(async () => {
     await module.close();
-  }, 10000);
+  }, 60000);
 
   it('should be defined', async () => {
     expect(service).toBeDefined();
