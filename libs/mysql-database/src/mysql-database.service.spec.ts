@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import DatabaseConfig from '@database/mysql-database/config/database.config';
 import { CommonModule } from '@common/common';
 
+jest.useRealTimers();
 describe('MysqlDatabaseService', () => {
   let service: MysqlDatabaseService;
   let module: TestingModule;

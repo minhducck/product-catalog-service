@@ -10,6 +10,8 @@ import { CommonModule } from '@common/common';
 import { MysqlDatabaseModule } from '@database/mysql-database';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+jest.useRealTimers();
+
 describe('AttributeController (e2e)', () => {
   let app: INestApplication;
   let dataSource: AttributeService;

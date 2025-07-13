@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { BaseService } from '@database/mysql-database/service/base.service';
 import { AttributeModel } from '../model/attribute.model';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, ILike, In, IsNull, Repository } from 'typeorm';
+import { DataSource, ILike, Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { SearchQueryResult } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
@@ -124,23 +124,5 @@ export class AttributeService extends BaseService<AttributeModel> {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     criteria.where = mergeWhereObj(criteria.where, additionalWhere);
-  }
-
-  private processCategoryIdsFilter(
-    criteria: FindManyOptions<AttributeModel>,
-    categoryIds: bigint[],
-  ) {
-    const additionalWhereCategory: FindOptionsWhere<AttributeModel> = {};
-    if (categoryIds.length) {
-      additionalWhereCategory.associatedAttributeLinkages = {
-        category: [{ uuid: In(categoryIds) }, { uuid: IsNull() }],
-      };
-    } else {
-      additionalWhereCategory.associatedAttributeLinkages = {
-        category: { uuid: IsNull() },
-      };
-    }
-
-    return additionalWhereCategory;
   }
 }
