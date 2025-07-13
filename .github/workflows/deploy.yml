@@ -52,9 +52,29 @@ jobs:
 
       - name: Get .env from config
         env:
-          EnvContent: ${{ secrets.DEPLOY_DOT_ENV }}
+          APPLICATION_NAME: ${{ vars.APPLICATION_NAME }}
+          APP_VERSION: ${{ vars.APP_VERSION }}
+          PORT: ${{ vars.PORT }}
+          ENV: ${{ vars.ENV }}
+          REQUEST_TIMEOUT: ${{ vars.REQUEST_TIMEOUT }}
+          TZ: ${{ vars.TZ }}
+          DBHOST: ${{ secrets.DEPLOY_DBHOST }}
+          DBPORT: ${{ secrets.DEPLOY_DBPORT }}
+          DBUSER: ${{ secrets.DEPLOY_DBUSER }}
+          DBPASS: ${{ secrets.DEPLOY_DBPASS }}
+          DBNAME: ${{ secrets.DEPLOY_DBNAME }}
         run: |
-          echo $EnvContent > .env
+          echo $APPLICATION_NAME >> .env;
+          echo $APP_VERSION >> .env;
+          echo $PORT >> .env;
+          echo $ENV >> .env;
+          echo $REQUEST_TIMEOUT >> .env;
+          echo $TZ >> .env;
+          echo $DBHOST >> .env;
+          echo $DBPORT >> .env;
+          echo $DBUSER >> .env;
+          echo $DBPASS >> .env;
+          echo $DBNAME >> .env;
       - name: Install AWS Credential
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
