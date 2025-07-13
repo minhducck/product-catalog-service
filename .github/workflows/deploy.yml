@@ -21,25 +21,6 @@ jobs:
           node-version: '20'
       - name: Install service deps
         run: yarn
-      - name: Run test cov
-        run: yarn test:cov
-        env:
-          APPLICATION_NAME: ${{ vars.APPLICATION_NAME }}
-          APP_VERSION: ${{ vars.APP_VERSION }}
-          PORT: ${{ vars.PORT }}
-          ENV: ${{ vars.ENV }}
-          REQUEST_TIMEOUT: ${{ vars.REQUEST_TIMEOUT }}
-          TZ: ${{ vars.TZ }}
-          DBHOST: ${{ secrets.DBHOST }}
-          DBPORT: ${{ secrets.DBPORT }}
-          DBUSER: ${{ secrets.DBUSER }}
-          DBPASS: ${{ secrets.DBPASS }}
-          DBNAME: ${{ secrets.DBNAME }}
-      - name: 'Coverage Report'
-        uses: ArtiomTr/jest-coverage-report-action@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          coverage-file: ./coverage/coverage-final.json
 
       - run: echo "🚧 build source code on branch ${{ github.ref }}."
       - name: Run build apps
@@ -49,7 +30,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'production-artifact'
-          path: 'dist'
+          path:
+            - 'dist'
+            - 'node_modules'
+            - 'package.json'
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
@@ -61,5 +45,16 @@ jobs:
     steps:
       - name: Download a coverage artifact
         uses: actions/download-artifact@v4
+      - name: Get .env from config
+        env:
+          EnvContent: ${{ secrets.DEPLOY_DOT_ENV }}
+        run: |
+          echo $EnvContent > .env
+      - name: Install AWS Credential
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
       - name: Execute here
-        run: echo "yarn serverless deploy --stage=test"
+        run: yarn serverless deploy --stage=test
