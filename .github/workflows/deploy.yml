@@ -23,6 +23,19 @@ jobs:
         run: yarn
       - name: Run test cov
         run: yarn test:cov
+        env:
+          APPLICATION_NAME: ${{ vars.APPLICATION_NAME }}
+          APP_VERSION: ${{ vars.APP_VERSION }}
+          PORT: ${{ vars.PORT }}
+          ENV: ${{ vars.ENV }}
+          REQUEST_TIMEOUT: ${{ vars.REQUEST_TIMEOUT }}
+          TZ: ${{ vars.TZ }}
+          DBHOST: ${{ secrets.DBHOST }}
+          DBPORT: ${{ secrets.DBPORT }}
+          DBUSER: ${{ secrets.DBUSER }}
+          DBPASS: ${{ secrets.DBPASS }}
+          DBNAME: ${{ secrets.DBNAME }}
+
       - name: Upload test cov Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -33,6 +46,10 @@ jobs:
       - run: echo "🚧 build source code on branch ${{ github.ref }}."
       - name: Run build apps
         run: yarn run build --all
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: 'dist'
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
