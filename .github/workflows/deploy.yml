@@ -8,9 +8,10 @@ permissions:
   contents: write
 
 jobs:
-  pull-and-install-deps:
+  build-source-code:
     runs-on: ubuntu-latest
     steps:
+
       - name: Check out repository code
         uses: actions/checkout@v4
 
@@ -20,34 +21,31 @@ jobs:
           node-version: '20'
       - name: Install service deps
         run: yarn
+      - name: Run test cov
+        run: yarn test:cov
+      - name: Upload test cov Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'coverage'
+          path: 'coverage'
+          retention-days: 3
 
-  build-source-code:
-    runs-on: ubuntu-latest
-    needs:
-      - pull-and-install-deps
-
-    steps:
       - run: echo "🚧 build source code on branch ${{ github.ref }}."
       - name: Run build apps
         run: yarn run build --all
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
-  code-coverage:
-    name: 'Run test coverage'
-    runs-on: 'ubuntu-latest'
-    needs:
-      - pull-and-install-deps
-    steps:
-      - name: Run test coverage
-        run: yarn run test:cov
-
   release-new-version:
     name: "Generate release"
     runs-on: 'ubuntu-latest'
     needs:
-      - code-coverage
+      - build-source-code
     steps:
+      - name: Download a coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
       - name: 'Coverage Report'
         uses: ArtiomTr/jest-coverage-report-action@v2
         id: 'code-coverage'
