@@ -35,6 +35,7 @@ jobs:
             node_modules
             package.json
             yarn.lock
+            serverless.yml
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
