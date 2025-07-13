@@ -40,6 +40,7 @@
     "serverless": "^4.17.1",
     "serverless-dotenv-plugin": "^6.0.0",
     "serverless-plugin-optimize": "^4.2.1-rc.1",
+    "serverless-vpc-plugin": "^1.0.6",
     "typeorm": "^0.3.25"
   },
   "devDependencies": {

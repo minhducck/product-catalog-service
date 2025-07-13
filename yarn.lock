@@ -4418,6 +4418,11 @@ base64-js@^1.0.2, base64-js@^1.3.1:
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
+bignumber.js@7.2.1:
+  version "7.2.1"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
+  integrity sha512-S4XzBk5sMB+Rcb/LNcpzXr57VRTxgAvaAEDAl1AwRx27j00hT84O6OkteE7u8UB3NuaaygCRrEpqox4uDOrbdQ==
+
 bin-version-check@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/bin-version-check/-/bin-version-check-5.1.0.tgz#788e80e036a87313f8be7908bc20e5abe43f0837"
@@ -4858,6 +4863,13 @@ ci-info@^3.2.0:
   version "3.9.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.9.0.tgz#4279a62028a7b1f262f3473fc9605f5e218c59b4"
   integrity sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==
+
+cidr-split@0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/cidr-split/-/cidr-split-0.1.2.tgz#58f65e6eefe2c56ce79553da1f6e0e478ccd4d0e"
+  integrity sha512-kGtEi2XkWDPZJrIASRgwIW7VauA7i5bc7GBt06I4XQJPIRjbD0QtKr2HzW1FsRxIGi+IaGta98r2BvwU1uWmNQ==
+  dependencies:
+    bignumber.js "7.2.1"
 
 cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
   version "1.0.6"
@@ -8715,6 +8727,13 @@ serverless-plugin-optimize@^4.2.1-rc.1:
     browserify "^16.2.3"
     fs-extra "^7.0.1"
     resolve-from "^4.0.0"
+
+serverless-vpc-plugin@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/serverless-vpc-plugin/-/serverless-vpc-plugin-1.0.6.tgz#1ae07a8cbd3b779e3ccc36ce7b7248b54c2dd212"
+  integrity sha512-3x5Yo5XLduQm1QpPuG37bMqE7cB+/zz/k9oESaETvSmOvi+doWgfS5wTXAvwqt9xgHdb8lK6onQh7vGAGJwTww==
+  dependencies:
+    cidr-split "0.1.2"
 
 serverless@^4.17.1:
   version "4.17.1"

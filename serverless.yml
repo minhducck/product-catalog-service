@@ -12,7 +12,7 @@ provider:
   endpointType: REGIONAL
   memorySize: 150
   timeout: 10
-  logRetentionInDays: 60
+  logRetentionInDays: 1
   architecture: arm64
   disableRollback: false
   apiGateway:
@@ -23,7 +23,17 @@ useDotenv: true
 plugins:
   - serverless-plugin-optimize
   - serverless-dotenv-plugin
-#  - serverless-offline
+  - serverless-vpc-plugin
+
+custom:
+  vpcConfig:
+    enabled: true
+    cidrBlock: '10.0.0.0/16'
+    createNatGateway: 1
+    zones:
+    - ap-southeast-1a
+    services:
+
 
 package:
   individually: true
