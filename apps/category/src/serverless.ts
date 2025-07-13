@@ -3,14 +3,13 @@ import { Callback, Context, Handler } from 'aws-lambda';
 import { CategoryModule } from './category.module';
 import { configure } from '@codegenie/serverless-express';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { setupApiVersioning, setupSwagger } from '@common/common/bootstrap';
+import { setupApiVersioning } from '@common/common/bootstrap';
 
 let server: Handler;
 
 async function bootstrap(): Promise<Handler> {
   const app: NestExpressApplication = await NestFactory.create(CategoryModule);
 
-  setupSwagger(app);
   setupApiVersioning(app);
   await app.init();
 
@@ -25,6 +24,7 @@ export const handler: Handler = async (
   callback: Callback,
 ) => {
   server = server ?? (await bootstrap());
+  context.callbackWaitsForEmptyEventLoop = false;
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return server(event, context, callback);
 };

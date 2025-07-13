@@ -6,47 +6,120 @@
 - For attribute type as URL, Images, MultiSelect value will be store as **String Type**.
 
 ## Tech Stack
-> - Node Version v22.14
-> - Serverless Framework v4.17
-> - NestJS v11.0
+> - Node Version **v22.14**
+> - Serverless Framework **v4.17**
+> - NestJS **v11.0**
+> - Database: **Mysql8**
 
-## References
+## References docs
 > - https://docs.nestjs.com/faq/serverless
 > - https://docs.nestjs.com/cli/monorepo#monorepo-mode
-
-## Todos
-- [ ] Support to handle Add/Delete options.
-- [ ] Assigning attribute to Category.
-- [ ] Move catalog attribute index to cron or using message queue for async processing.
 
 ## Roadmaps
 - [ ] Product entities
 - [ ] Support for image type / Allow user to upload images.
-- [ ] Move the database creation to migrations instead of using `synchronize` mode. 
+- [ ] Move the database creation to migrations instead of using `synchronize` mode.
+- [ ] Support partial Category/Attribute linkage indexation for increasing performance. 
+
+## Database Schemas
+> https://drawsql.app/teams/free-79/diagrams/catalog
+
+## Environments
+### Standalone
+> BaseUrl: https://catalog.duckonemorec.me/
+> Swagger Docs: https://catalog.duckonemorec.me/swagger
+
+### AWS Lambda
+> BaseUrl: https://jn4lapp0gk.execute-api.ap-southeast-1.amazonaws.com/test/
+
 
 ## Installation
 ```bash
     # Install Serverless
     npm i -g serverless@4.17.1
+    
+    # Install source code deps
+    npm install
+    # [*] Must configure `.env` following structure from `.env.sample`
+    # Start API server
+    ENV=dev npm start:dev
 ```
 
+## How tos
+### How to construct _Sorting_ query
+
+### How to construct _Pagination_ queryk
+
 ## Supported APIs
+The detailed API docs available on: https://catalog.duckonemorec.me/swagger
+
+
+
 ### Attributes
-#### [GET] /V1/attributes
-> To retrieve the list of Attributes
+#### Create Attributes
+```http request
+POST /V1/attributes
+Content-Type: application/json
 
-#### [POST] /V1/attributes
-> To create attribute
+{
+    "name": "{{attributeName}}",
+    "code": "{{attributeCode}}",
+    "dataType": "{{attributeDataType}}"
+}
+```
 
-#### [GET] /V1/attributes/{id}
-> To get attribute by Id
+#### Get list attributes
+```http request
+GET /V1/attributes
+```
 
-#### [PUT] /V1/attributes/{attributeId}
-> Update attribute
+#### Get list attributes with associated attributes
+```http request
+GET /V1/attributes?categoryIds={categoryId}&categoryIds={categoryIds}
+```
 
-#### [DELETE] /V1/attributes/{attributeId}
-> Delete attributes
+#### Get list attributes not associated to any categories
+```http request
+GET /V1/attributes?categoryIds={categoryId}&categoryIds={categoryIds}&filterNonAssigned=true
+```
 
-### Categories
-#### [GET] /V1/categories
-> To retrieve the category tree
+#### Get list attributes by search keyword
+```http request
+GET /V1/attributes?categoryIds={categoryId}&categoryIds={categoryIds}&keyword=Glob
+```
+
+
+#### Get list attributes by link types
+```http request
+GET /V1/attributes?categoryIds={categoryId}&categoryIds={categoryIds}&linkTypes=Inherited&linkTypes=Direct
+```
+
+## Categories
+### Create category
+Request:
+```http request
+POST /V1/categories
+Content-Type: application/json
+
+{
+      "name": "{{CategoryName}}",
+      "parentCategory": "{{categoryUUID}}"
+}
+```
+
+### Assign attribute to category
+Request:
+```http request
+PUT /V1/categories/{categoryId}/attributes
+Content-Type: application/json
+
+{
+    "attributes": [{"uuid": "{{attributeUUID}}"}]
+}
+```
+
+### View Category Tree
+Request:
+```http request
+GET /V1/categories
+```
