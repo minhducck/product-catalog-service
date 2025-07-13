@@ -1,6 +1,9 @@
 name: Backend Pipeline
 run-name: ${{ github.actor }} is pushing a new commit 🚀
-on: [ push ]
+on:
+  push:
+    branches: [ "main" ]
+
 jobs:
   Static-Code-Check:
     runs-on: ubuntu-latest
