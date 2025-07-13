@@ -13,7 +13,7 @@ import { AttributeModel } from '../../../attribute/src/model/attribute.model';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { In } from 'typeorm';
 import { AttributeService } from '../../../attribute/src/services/attribute.service';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { SearchQueryInterface } from '@database/mysql-database/search-query-parser';
 import { parseHttpQueryToFindOption } from '@database/mysql-database/search-query-parser/parser';
 import { SearchQueryResponseInterceptor } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
@@ -34,6 +34,32 @@ export class CategoryAttributesController {
 
   @Get()
   @ApiOperation({ summary: 'Get category attributes' })
+  @ApiQuery({
+    name: 'keyword',
+    type: String,
+    required: false,
+    description: 'Search Keywords',
+  })
+  @ApiQuery({
+    name: 'categoryIds',
+    type: 'number',
+    isArray: true,
+    required: false,
+    description: 'Add bonded categories',
+  })
+  @ApiQuery({
+    name: 'linkTypes',
+    type: 'enum',
+    enum: LinkTypeEnum,
+    required: false,
+    description: 'Filter by link type',
+  })
+  @ApiQuery({
+    name: 'filterNonAssigned',
+    type: 'boolean',
+    required: false,
+    description: 'Filter by non assigned attributes',
+  })
   @UseInterceptors(SearchQueryResponseInterceptor)
   async getCategoryAttributes(
     @Param('id') categoryId: bigint,

@@ -40,7 +40,20 @@ export class AttributeController {
     type: 'number',
     isArray: true,
     required: false,
-    description: 'Search Keywords',
+    description: 'Add bonded categories',
+  })
+  @ApiQuery({
+    name: 'linkTypes',
+    type: 'enum',
+    enum: LinkTypeEnum,
+    required: false,
+    description: 'Filter by link type',
+  })
+  @ApiQuery({
+    name: 'filterNonAssigned',
+    type: 'boolean',
+    required: false,
+    description: 'Filter by non assigned attributes',
   })
   @UseInterceptors(SearchQueryResponseInterceptor)
   getAttributeList(
