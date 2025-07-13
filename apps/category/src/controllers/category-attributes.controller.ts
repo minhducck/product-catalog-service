@@ -41,6 +41,7 @@ export class CategoryAttributesController {
     @Query('linkTypes') linkTypes: LinkTypeEnum[] = [],
     @Query('searchQuery', SafeTransformSearchQueryPipe)
     searchQuery: SearchQueryInterface,
+    @Query('filterNonAssigned') nonAssignedOnly?: boolean,
   ) {
     const criteria: FindManyOptions<AttributeModel> =
       parseHttpQueryToFindOption(searchQuery);
@@ -49,6 +50,7 @@ export class CategoryAttributesController {
       [categoryId],
       keyword,
       linkTypes,
+      nonAssignedOnly,
       criteria,
     );
   }

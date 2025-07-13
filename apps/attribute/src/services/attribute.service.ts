@@ -29,6 +29,7 @@ export class AttributeService extends BaseService<AttributeModel> {
     categoryIds: bigint[] = [],
     keyword: string = '',
     linkTypes: LinkTypeEnum[] = [],
+    nonAssignedOnly: boolean = false,
     criteria: FindManyOptions<AttributeModel> = {},
     supportedKeywordFields = ['name', 'code'],
   ): Promise<SearchQueryResult<AttributeModel[]>> {
@@ -52,7 +53,7 @@ export class AttributeService extends BaseService<AttributeModel> {
     };
 
     if (categoryIds.length) {
-      queryBuilder.innerJoinAndMapMany(
+      queryBuilder.leftJoinAndMapMany(
         'AttributeModel.associatedAttributeLinkages',
         CategoryAttributeIndexModel,
         'associatedAttributeLinkages',
@@ -64,6 +65,12 @@ export class AttributeService extends BaseService<AttributeModel> {
         queryBuilder.andWhere(
           `associatedAttributeLinkages.linkType IN (:linkTypes)`,
           { linkTypes },
+        );
+      }
+
+      if (nonAssignedOnly) {
+        queryBuilder.andWhere(
+          `associatedAttributeLinkages.attributeUuid IS NULL`,
         );
       }
     }

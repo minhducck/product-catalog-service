@@ -49,11 +49,13 @@ export class AttributeController {
     @Query('keyword') keyword: string = '',
     @Query('categoryIds') boundedCategoriesIds: bigint[] = [],
     @Query('linkTypes') linkTypes: LinkTypeEnum[] = [],
+    @Query('filterNonAssigned') nonAssignedOnly?: boolean,
   ) {
     return this.attributeService.getListAndCountOnCategories(
       boundedCategoriesIds,
       keyword,
       linkTypes,
+      nonAssignedOnly,
       parseHttpQueryToFindOption(searchQuery),
     );
   }
