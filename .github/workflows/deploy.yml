@@ -30,10 +30,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'production-artifact'
-          path:
-            - 'dist'
-            - 'node_modules'
-            - 'package.json'
+          path: |
+            dist
+            node_modules
+            package.json
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
