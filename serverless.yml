@@ -1,7 +1,7 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 #org: duckonemorec
 # "service" is the name of this project. This will also be added to your AWS resource names.
-service: product-information-serverless
+service: product-information-serverless-v2
 
 provider:
   name: aws

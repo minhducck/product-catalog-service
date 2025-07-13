@@ -32,10 +32,9 @@ export default class DatabaseConfig implements TypeOrmOptionsFactory {
       connectTimeout: 3000,
       timezone: this.configService.get<string>('DB_TIMEZONE', '+08:00'),
       entities: [baseSearch + '/**/model/*.model{.ts,.js}'],
-      synchronize: true,
-      poolSize: +this.configService.get('DBPOOLSIZE') || 4,
+      synchronize: appEnv === 'dev',
+      poolSize: +this.configService.get('DBPOOLSIZE') || 10,
       logging: this.getLoggingLevel(appEnv),
-      cache: true,
     };
 
     return databaseConfig;

@@ -11,29 +11,39 @@ import { AttributeModel } from '../../../attribute/src/model/attribute.model';
 @Injectable()
 export class IndexAttributeOptionLinkageListener {
   private readonly logger = new Logger(this.constructor.name);
+
   constructor(
     @Inject(CategoryAttributeIndexService)
     private readonly catalogAttributeService: CategoryAttributeIndexService,
     private readonly categoryService: CategoryService,
     private readonly attributeService: AttributeService,
   ) {}
+
   @OnEvent('category-service.save.commit.after')
-  async execute() {
+  async execute({
+    entity,
+    entityBeforeSave,
+  }: {
+    entity: CategoryModel;
+    entityBeforeSave: CategoryModel;
+  }) {
     this.logger.log('Reindex attribute option linkage');
-    await wrapTimeMeasure(
-      async () => {
-        return this.catalogAttributeService.indexCategoryAttributes(
-          await this.categoryService.getList({
-            loadRelationIds: {
-              relations: ['parentCategory', 'assignedAttributes'],
-            },
-          }),
-          await this.attributeService.getList(),
-        );
-      },
-      'Reindex attribute option linkage',
-      this.logger,
-    );
+    if (this.shouldReindexAttributeOptionLinkage(entity, entityBeforeSave)) {
+      await wrapTimeMeasure(
+        async () => {
+          return this.catalogAttributeService.indexCategoryAttributes(
+            await this.categoryService.getList({
+              loadRelationIds: {
+                relations: ['parentCategory', 'assignedAttributes'],
+              },
+            }),
+            await this.attributeService.getList(),
+          );
+        },
+        'Reindex attribute option linkage',
+        this.logger,
+      );
+    }
     this.logger.log('Reindex attribute option linkage done');
   }
 

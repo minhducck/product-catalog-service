@@ -39,7 +39,7 @@
 
 ### AWS Lambda
 
-> BaseUrl: https://jn4lapp0gk.execute-api.ap-southeast-1.amazonaws.com/test/
+> BaseUrl: https://e8mgt7yz64.execute-api.ap-southeast-1.amazonaws.com/test/
 
 ## Installation
 
