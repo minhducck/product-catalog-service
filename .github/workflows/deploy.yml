@@ -40,17 +40,17 @@ jobs:
           DBPASS: ${{ secrets.DEPLOY_DBPASS }}
           DBNAME: ${{ secrets.DEPLOY_DBNAME }}
         run: |
-          echo $APPLICATION_NAME >> .env;
-          echo $APP_VERSION >> .env;
-          echo $PORT >> .env;
-          echo $ENV >> .env;
-          echo $REQUEST_TIMEOUT >> .env;
-          echo $TZ >> .env;
-          echo $DBHOST >> .env;
-          echo $DBPORT >> .env;
-          echo $DBUSER >> .env;
-          echo $DBPASS >> .env;
-          echo $DBNAME >> .env;
+          echo APPLICATION_NAME=$APPLICATION_NAME >> .env;
+          echo APP_VERSION=$APP_VERSION >> .env;
+          echo PORT=$PORT >> .env;
+          echo ENV=$ENV >> .env;
+          echo REQUEST_TIMEOUT=$REQUEST_TIMEOUT >> .env;
+          echo TZ=$TZ >> .env;
+          echo DBHOST=$DBHOST >> .env;
+          echo DBPORT=$DBPORT >> .env;
+          echo DBUSER=$DBUSER >> .env;
+          echo DBPASS=$DBPASS >> .env;
+          echo DBNAME=$DBNAME >> .env;
       - name: Install AWS Credential
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
