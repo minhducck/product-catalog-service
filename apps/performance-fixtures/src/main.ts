@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { PerformanceFixturesModule } from './performance-fixtures.module';
-import { fakerEN } from '@faker-js/faker';
 import { sampleSize } from 'lodash';
 import { CategoryService } from '../../category/src/services/category.service';
 import { AttributeModel } from '../../attribute/src/model/attribute.model';
@@ -60,18 +59,19 @@ async function generateCategory(
 
   const categoriesL1 = Array(n)
     .fill(`L1`)
-    .map((i, index) =>
-      CategoryModel.create<CategoryModel>({
-        name: `${prefix} ${fakerEN.commerce.department()}_${index}`,
-        parentCategory:
-          parentList.length === 0
-            ? undefined
-            : parentList[
-                parseInt(String((Math.random() * 10000) % parentList.length))
-              ],
+    .map((i, index) => {
+      const parent =
+        parentList.length === 0
+          ? undefined
+          : parentList[
+              parseInt(String((Math.random() * 10000) % parentList.length))
+            ];
+      return CategoryModel.create<CategoryModel>({
+        name: `${prefix}_${parent?.name || ''}_${index}`,
+        parentCategory: parent,
         assignedAttributes: generateAttrs(),
-      }),
-    );
+      });
+    });
   return await categoryService.saveBulk(categoriesL1);
 }
 

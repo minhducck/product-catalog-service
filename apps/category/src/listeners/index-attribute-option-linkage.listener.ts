@@ -52,6 +52,9 @@ export class IndexAttributeOptionLinkageListener {
     entity: CategoryModel,
     entityBeforeSave: CategoryModel,
   ) {
+    // @Todo: Pleas check for the save case.
+    return true;
+
     const keyToChecks: (keyof CategoryModel)[] = ['children', 'parentCategory'];
 
     if (
