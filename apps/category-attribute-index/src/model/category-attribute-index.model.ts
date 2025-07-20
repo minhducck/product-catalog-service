@@ -25,7 +25,7 @@ export class CategoryAttributeIndexModel extends BaseModel<CategoryAttributeInde
     onDelete: 'CASCADE',
   })
   @Exclude({ toPlainOnly: true })
-  category: CategoryModel | null;
+  category: Pick<CategoryModel, 'uuid'> | null;
 
   @ManyToOne(() => AttributeModel, {
     eager: false,

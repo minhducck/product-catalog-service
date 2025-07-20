@@ -14,7 +14,7 @@ import {
   SearchQueryResponseInterceptor,
   SearchQueryResult,
 } from '@database/mysql-database/interceptor/search-query-response-interceptor.service';
-import { CategoryTreeType } from '../types/category-tree.type';
+import { CategoryTreeType, TreeNode } from '../types/category-tree.type';
 import { buildCategoryTree } from '../helper/build-category-tree';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CategoryTreeResponse } from '../types/category-tree-response';
@@ -55,13 +55,13 @@ export class CategoryController {
       await this.categoryService.getListAndCount({
         where: {},
         select: { parentCategory: true, linkedProducts: false },
-        relations: ['parentCategory', 'assignedAttributes', 'attributeLinks'],
+        relations: ['parentCategory'],
         relationLoadStrategy: 'join',
         loadEagerRelations: false,
         loadRelationIds: { relations: ['parentCategory'] },
       });
 
-    return [buildCategoryTree(categoryList), totalCategory];
+    return [buildCategoryTree(categoryList as TreeNode[]), totalCategory];
   }
 
   @Get(':id')

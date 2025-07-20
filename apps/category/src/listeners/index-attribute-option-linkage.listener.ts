@@ -7,6 +7,7 @@ import { CategoryService } from '../services/category.service';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { wrapTimeMeasure } from '@common/common/helper/wrap-time-measure';
 import { AttributeModel } from '../../../attribute/src/model/attribute.model';
+import { TreeNode } from '../types/category-tree.type';
 
 @Injectable()
 export class IndexAttributeOptionLinkageListener {
@@ -30,16 +31,16 @@ export class IndexAttributeOptionLinkageListener {
     this.logger.log('Reindex attribute option linkage');
     if (this.shouldReindexAttributeOptionLinkage(entity, entityBeforeSave)) {
       await wrapTimeMeasure(
-        async () => {
-          return this.catalogAttributeService.indexCategoryAttributes(
-            await this.categoryService.getList({
+        async () =>
+          this.catalogAttributeService.indexCategoryAttributes(
+            (await this.categoryService.getList({
+              relations: ['parentCategory', 'assignedAttributes'],
               loadRelationIds: {
-                relations: ['parentCategory', 'assignedAttributes'],
+                relations: ['parentCategory'],
               },
-            }),
+            })) as TreeNode[],
             await this.attributeService.getList(),
-          );
-        },
+          ),
         'Reindex attribute option linkage',
         this.logger,
       );

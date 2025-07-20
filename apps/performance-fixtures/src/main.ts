@@ -1,13 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { PerformanceFixturesModule } from './performance-fixtures.module';
 import { fakerEN } from '@faker-js/faker';
-import { random, sampleSize } from 'lodash';
+import { sampleSize } from 'lodash';
 import { CategoryService } from '../../category/src/services/category.service';
 import { AttributeModel } from '../../attribute/src/model/attribute.model';
 import { CategoryModel } from '../../category/src/model/category.model';
 import { AttributeOptionModel } from '../../attribute/src/model/attribute-option.model';
 import { AttributeDataTypeEnum } from '../../attribute/src/types/attribute-data-type.enum';
 import { AttributeService } from '../../attribute/src/services/attribute.service';
+import { generateULID } from '@common/common/helper/generate-ulid';
+import * as process from 'node:process';
 
 interface IProfile {
   numberOfProducts: number;
@@ -20,8 +22,8 @@ interface IProfile {
 
 const presetProfile: Record<number, IProfile> = {
   1_000_000: {
-    numberOfCategories: 500,
-    numberOfAttributes: 10_000,
+    numberOfCategories: 300,
+    numberOfAttributes: 500,
     numberOfProducts: 1_000_000,
 
     percentGotOption: 10,
@@ -30,16 +32,19 @@ const presetProfile: Record<number, IProfile> = {
 };
 
 const wrapTimeMeasure = async (action: () => any, task: string) => {
-  // const [hrTimeStartSec, hrTimeStartNano] = process.hrtime();
-  // const startTime = hrTimeStartSec * 1000 + hrTimeStartNano / 1000000;
+  const [hrTimeStartSec, hrTimeStartNano] = process.hrtime();
+  const startTime = hrTimeStartSec * 1000 + hrTimeStartNano / 1000000;
 
   console.log('task', task);
-  await action();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const rs = await action();
 
-  // const [hrEndTimeSec, hrEndTimeNano] = process.hrtime();
-  // const endTime = hrEndTimeSec * 1000 + hrEndTimeNano / 1000000;
-  //
-  // console.log(`Task: ${task} takes ${endTime - startTime} ms to finish`);
+  const [hrEndTimeSec, hrEndTimeNano] = process.hrtime();
+  const endTime = hrEndTimeSec * 1000 + hrEndTimeNano / 1000000;
+
+  console.log(`Task: ${task} takes ${endTime - startTime} ms to finish`);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return rs;
 };
 
 async function generateCategory(
@@ -51,7 +56,7 @@ async function generateCategory(
 ) {
   const MAX_ATTRIBUTE_FOR_CAT = 5;
   const generateAttrs = () =>
-    sampleSize(attributes, (random(false) * 100) % MAX_ATTRIBUTE_FOR_CAT);
+    sampleSize(attributes, (Math.random() * 100) % MAX_ATTRIBUTE_FOR_CAT);
 
   const categoriesL1 = Array(n)
     .fill(`L1`)
@@ -61,7 +66,9 @@ async function generateCategory(
         parentCategory:
           parentList.length === 0
             ? undefined
-            : parentList[(random(false) * 10000) % parentList.length],
+            : parentList[
+                parseInt(String((Math.random() * 10000) % parentList.length))
+              ],
         assignedAttributes: generateAttrs(),
       }),
     );
@@ -78,7 +85,7 @@ async function bootstrap() {
     .fill(1)
     .map((i, attI) => {
       const isAbleToAddOption = attI % 10 === profile.percentGotOption / 10;
-      const attrName = `attribute_${attI}`;
+      const attrName = `attribute_${attI}_${generateULID()}`;
 
       let options: AttributeOptionModel[] = [];
 
@@ -95,14 +102,15 @@ async function bootstrap() {
       return AttributeModel.create<AttributeModel>({
         code: attrName,
         name: attrName,
+        status: true,
         dataType: AttributeDataTypeEnum.SHORT_TEXT,
         options,
       });
     });
-
-  await wrapTimeMeasure(async () => {
-    const attributeService = app.get(AttributeService);
-    await attributeService.saveBulk(attributes);
+  const attributeService = app.get(AttributeService);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const attributeList = await wrapTimeMeasure(async () => {
+    return attributeService.saveBulk(attributes);
   }, 'Create Attribute Data');
 
   // 5% on level 1. 15% L2. rest L3
@@ -114,20 +122,27 @@ async function bootstrap() {
     numberAtL1,
     categoryService,
     'L1',
-    attributes,
+    attributeList,
   );
   const Cat2 = await generateCategory(
     numberAtL2,
     categoryService,
     'L2',
-    attributes,
+    attributeList,
     Cat1,
   );
-  await generateCategory(numberAtL3, categoryService, 'L3', attributes, Cat2);
+  await generateCategory(
+    numberAtL3,
+    categoryService,
+    'L3',
+    attributeList,
+    Cat2,
+  );
 }
 
 bootstrap()
   .then(() => {
     console.log('Process done.');
+    process.exit(0);
   })
   .catch(console.error);

@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 import { CategoryModel } from '../model/category.model';
 import { PartialType } from '@nestjs/swagger';
 
-class CategoryOutput
+export class CategoryOutput
   extends PartialType(CategoryModel)
   implements Partial<CategoryModel>
 {

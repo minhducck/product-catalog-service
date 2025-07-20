@@ -17,6 +17,7 @@ import { AttributeModel } from '../../../attribute/src/model/attribute.model';
 import { ProductModel } from '../../../product/src/model/product.model';
 import { CategoryAttributeIndexModel } from '../../../category-attribute-index/src/model/category-attribute-index.model';
 import { Exclude, Transform } from 'class-transformer';
+import { isEqual, pick } from 'lodash';
 
 @Entity({
   name: 'categories',
@@ -24,6 +25,7 @@ import { Exclude, Transform } from 'class-transformer';
 })
 @Unique(['name', 'parentCategory'])
 export class CategoryModel extends BaseModel<CategoryModel> {
+  private static readonly keysToCompare = ['name', 'left', 'right', 'level'];
   @Column({
     type: 'varchar',
     nullable: false,
@@ -131,4 +133,12 @@ export class CategoryModel extends BaseModel<CategoryModel> {
   __attributeLinks__?: CategoryAttributeIndexModel[];
   @Exclude({ toPlainOnly: true })
   __has_attributeLinks__?: boolean;
+
+  hasChanged() {
+    const fromOrigin = pick(this.getOriginData(), CategoryModel.keysToCompare);
+    const newData = pick(this, CategoryModel.keysToCompare);
+
+    const isSame = isEqual(fromOrigin, newData);
+    return !isSame;
+  }
 }

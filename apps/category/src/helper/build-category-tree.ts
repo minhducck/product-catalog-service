@@ -1,12 +1,12 @@
+import { CategoryTreeType, TreeNode } from '../types/category-tree.type';
 import { CategoryModel } from '../model/category.model';
-import { CategoryTreeType } from '../types/category-tree.type';
 
 export function buildCategoryTree(
-  categories: CategoryModel[],
+  categories: TreeNode[],
   fromNode: CategoryModel | null = null,
 ): CategoryTreeType {
   const tree: CategoryTreeType = [];
-  let fromNodeResult: CategoryModel | null = null;
+  let fromNodeResult: TreeNode | null = null;
 
   for (const category of categories) {
     category.children = categories.filter(

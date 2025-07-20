@@ -1,8 +1,10 @@
 import { OnEvent } from '@nestjs/event-emitter';
-import { CategoryModel } from '../model/category.model';
 import { CategoryService } from '../services/category.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { buildCategoryTree } from '../helper/build-category-tree';
+import { TreeNode } from '../types/category-tree.type';
+import { CategoryModel } from '../model/category.model';
+import { wrapTimeMeasure } from '@common/common/helper/wrap-time-measure';
 
 @Injectable()
 export class IndexCategoryTreeListener {
@@ -10,7 +12,14 @@ export class IndexCategoryTreeListener {
   private sharedLock = false;
   constructor(private readonly categoryService: CategoryService) {}
   @OnEvent('category-service.save.commit.after')
-  async execute() {
+  async execute({ entity }: { entity: CategoryModel }) {
+    return wrapTimeMeasure(
+      async () => this.doIndex({ entity }),
+      'Reindex category tree',
+      this.logger,
+    );
+  }
+  async doIndex({ entity }: { entity: CategoryModel }) {
     if (this.sharedLock) return;
 
     await this.wrapInToLockWrapper(async () => {
@@ -22,12 +31,13 @@ export class IndexCategoryTreeListener {
         loadRelationIds: {
           relations: ['parentCategory'],
         },
+        order: { uuid: 1 },
       });
-      const tree = buildCategoryTree(catNodes);
-      const ROOT = CategoryModel.create<CategoryModel>({ children: tree });
+      const tree = buildCategoryTree(catNodes as TreeNode[]);
+      const root = new TreeNode({ children: tree });
       let shareCounter = 0;
 
-      const indexTree = (treeNode: CategoryModel, level = 1) => {
+      const indexTree = (treeNode: TreeNode, level = 1) => {
         if (!treeNode) return;
 
         treeNode.level = level;
@@ -39,9 +49,12 @@ export class IndexCategoryTreeListener {
         treeNode.right = shareCounter++;
       };
 
-      indexTree(ROOT);
-      await this.categoryService.saveBulk(catNodes);
-      this.logger.log('Reindex category tree done');
+      indexTree(root);
+      const hasChanges = catNodes.filter((cat) => cat.hasChanged());
+      this.logger.log(`Categories to update: ${hasChanges.length}`);
+      return this.categoryService.saveBulk(hasChanges).then(() => {
+        this.logger.log('Reindex category tree done');
+      });
     });
   }
 
