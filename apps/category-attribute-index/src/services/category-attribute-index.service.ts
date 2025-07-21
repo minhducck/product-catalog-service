@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CategoryModel } from '../../../category/src/model/category.model';
 import { AttributeModel } from '../../../attribute/src/model/attribute.model';
-import { buildCategoryTree } from '../../../category/src/helper/build-category-tree';
 import { CategoryAttributeIndexModel } from '../model/category-attribute-index.model';
 import { BaseService } from '@database/mysql-database/service/base.service';
 import { DataSource, In, Repository } from 'typeorm';
@@ -9,7 +8,8 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { LinkTypeEnum } from '../types/link-type.enum';
 import { uniq } from 'lodash';
-import { TreeNode } from 'apps/category/src/types/category-tree.type';
+import { TreeNode } from '../../../category/src/types/category-tree.type';
+import { buildCategoryTree } from '../../../category/src/helper/build-category-tree';
 
 type AssignNodeAttributeFn = (
   node: TreeNode,
