@@ -3,7 +3,6 @@ import { CategoryService } from '../services/category.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { buildCategoryTree } from '../helper/build-category-tree';
 import { TreeNode } from '../types/category-tree.type';
-import { CategoryModel } from '../model/category.model';
 import { wrapTimeMeasure } from '@common/common/helper/wrap-time-measure';
 
 @Injectable()
@@ -12,14 +11,14 @@ export class IndexCategoryTreeListener {
   private sharedLock = false;
   constructor(private readonly categoryService: CategoryService) {}
   @OnEvent('category-service.save.commit.after')
-  async execute({ entity }: { entity: CategoryModel }) {
+  async execute() {
     return wrapTimeMeasure(
-      async () => this.doIndex({ entity }),
+      async () => this.doIndex(),
       'Reindex category tree',
       this.logger,
     );
   }
-  async doIndex({ entity }: { entity: CategoryModel }) {
+  async doIndex() {
     if (this.sharedLock) return;
 
     await this.wrapInToLockWrapper(async () => {
